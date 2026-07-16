@@ -3,7 +3,12 @@ import axios from 'axios';
 
 const AuthContext = createContext();
 
-const API = 'http://localhost:5000/api';
+// FIX: was hardcoded to 'http://localhost:5000/api', which meant every call
+// in this file ignored axiosConfig.js's baseURL entirely — axios only falls
+// back to defaults.baseURL for RELATIVE paths, and every call here already
+// builds a full absolute URL, so it always hit localhost even in production.
+// Falls back to the local backend only when VITE_API_URL isn't set (dev).
+const API = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api`;
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser]       = useState(null);
