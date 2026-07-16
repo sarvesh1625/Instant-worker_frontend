@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Labour Platform</title>
+    <link rel="icon" href="data:,">
+
+    <!-- Tabler Icons — required for all icons in the app -->
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" /> -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" crossorigin="anonymous" />
+
+    <!-- Google Fonts — better readability for workers -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: 'Noto Sans', sans-serif;
+        background: #f0f4f8;
+      }
+      /* Make the whole app feel like a mobile app */
+      #root {
+        max-width: 480px;
+        margin: 0 auto;
+        min-height: 100vh;
+        background: #f0f4f8;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

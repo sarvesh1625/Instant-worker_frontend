@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Remove any max-width restriction on root */
+#root {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
