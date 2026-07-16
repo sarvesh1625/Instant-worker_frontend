@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import AdminLayout, { AdminAuthGuard, adminAxios } from './AdminLayout';
-import { T, ROLE_COLOR, STATUS_COLOR, inputStyle, labelStyle } from './Admintheme ';
+import { T, ROLE_COLOR, STATUS_COLOR, inputStyle, labelStyle } from './adminTheme';
 
 function UsersContent() {
   const [users, setUsers] = useState([]);

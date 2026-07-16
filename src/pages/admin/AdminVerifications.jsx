@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import AdminLayout, { AdminAuthGuard, adminAxios } from './AdminLayout';
-import { T, ROLE_COLOR, inputStyle } from './Admintheme ';
+import { T, ROLE_COLOR, inputStyle } from './adminTheme';
 
 // FIX: same class of bug as AdminReports — the old roleColor map had no
 // 'user' key, only the retired 4-role set. Now shares ROLE_COLOR.

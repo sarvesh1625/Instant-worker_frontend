@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import AdminLayout, { AdminAuthGuard, adminAxios } from './AdminLayout';
-import { T, ROLE_COLOR, inputStyle } from './Admintheme ';
+import { T, ROLE_COLOR, inputStyle } from './adminTheme';
 
 const REASON_LABELS = {
   no_show: "Didn't show up", unsafe_behavior: 'Unsafe behavior', fake_profile: 'Fake profile',

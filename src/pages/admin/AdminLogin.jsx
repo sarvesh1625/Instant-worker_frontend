@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminAxios } from './AdminLayout';
-import { T, inputStyle, labelStyle } from './Admintheme ';
+import { T, inputStyle, labelStyle } from './adminTheme';
 
 export default function AdminLogin() {
   const navigate = useNavigate();

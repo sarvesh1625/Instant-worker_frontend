@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout, { AdminAuthGuard, adminAxios } from './AdminLayout';
-import { T } from './Admintheme ';
+import { T } from './adminTheme';
 
 function StatCard({ icon, color, bg, label, value, sub }) {
   return (

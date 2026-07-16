@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import AdminLayout, { AdminAuthGuard, adminAxios } from './AdminLayout';
-import { T, STATUS_COLOR, inputStyle } from './Admintheme ';
+import { T, STATUS_COLOR, inputStyle } from './adminTheme';
 
 function JobsContent() {
   const [jobs, setJobs] = useState([]);
