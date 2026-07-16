@@ -1,17 +1,23 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { T } from './Admintheme ';
+import { T } from './adminTheme';
 
 // ── Dedicated axios instance just for admin requests ─────────────────────────
-// Never shares headers with the regular app's axios.defaults instance, so
-// being logged into both the consumer app and the admin panel in the same
-// browser session can never overwrite one token with the other.
 export const adminAxios = axios.create();
+
+// FIX: this instance never had a baseURL set, so every relative call like
+// '/api/admin/login' resolved against the CURRENT PAGE'S origin — the
+// Vercel frontend itself — instead of the Render backend. Same class of
+// bug as AuthContext.jsx and SocketContext.jsx, just missed on this file.
+// Falls back to localhost only when VITE_API_URL isn't set (local dev).
+adminAxios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 adminAxios.interceptors.request.use((config) => {
   const token = localStorage.getItem('adminToken');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
 });
 
@@ -38,7 +44,6 @@ const NAV_ITEMS = [
   { icon: 'ti-briefcase',        label: 'Jobs',          path: '/admin/jobs' },
 ];
 
-// Bottom nav on mobile shows a trimmed set to avoid crowding
 const BOTTOM_ITEMS = [
   { icon: 'ti-layout-dashboard', label: 'Home',    path: '/admin/dashboard' },
   { icon: 'ti-users',            label: 'Users',    path: '/admin/users' },
@@ -89,7 +94,6 @@ export default function AdminLayout({ children }) {
   return (
     <div style={{ minHeight: '100vh', background: T.bg, fontFamily: T.font, display: 'flex' }}>
 
-      {/* ══ Sidebar (desktop) ══ */}
       <aside className="admin-sidebar-desktop" style={{
         width: 240, background: T.surface, borderRight: `1px solid ${T.border}`,
         padding: '22px 14px 18px', display: 'none', flexDirection: 'column',
@@ -157,7 +161,6 @@ export default function AdminLayout({ children }) {
         </div>
       </aside>
 
-      {/* ══ Mobile top bar ══ */}
       <div className="admin-topbar-mobile" style={{
         position: 'sticky', top: 0, zIndex: 30, width: '100%',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -212,14 +215,12 @@ export default function AdminLayout({ children }) {
         </div>
       )}
 
-      {/* ══ Page content ══ */}
       <div className="admin-main" style={{ flex: 1, minWidth: 0, paddingBottom: 76 }}>
         <div style={{ padding: '22px 20px 30px' }}>
           {children}
         </div>
       </div>
 
-      {/* ══ Bottom nav (mobile) ══ */}
       <nav className="admin-bottomnav" style={{
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 40,
         background: T.surface, borderTop: `1px solid ${T.border}`,
