@@ -1,13 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// LangContext — app-wide language switching.
-// Exposes BOTH naming conventions used across the app:
-//   lang, setLang, t          → used by AppShell and most pages
-//   changeLang, languages     → used by LangSelector / VoiceSearchButton / SpeakButton
-// (changeLang is just an alias for setLang, languages is the picker list.)
-// ─────────────────────────────────────────────────────────────────────────────
-
 const LangContext = createContext();
 
 export const useLang = () => {
@@ -56,6 +48,30 @@ const STRINGS = {
     jobsDone: 'Jobs done', noRecords: 'No records yet',
     goodMorning: 'Good morning', goodAfternoon: 'Good afternoon',
     goodEvening: 'Good evening', quickActions: 'Quick actions',
+
+    // ── NEW: Dashboard ──
+    jobsPosted: 'Jobs posted', rating: 'Rating', worker: 'Worker', user: 'User',
+    readyToReceive: (skill) => `Ready to receive ${skill} job requests`,
+    findWorkTitle: 'Browse Jobs',      findWorkSub: 'Kaam dhundo',
+    myWorkTitle: 'My Work',            myWorkSub: 'Mera kaam',
+    portfolioTitle: 'Portfolio',       portfolioSub: 'Kaam ki photos',
+    verificationTitle: 'Verification', verificationSub: 'ID verify karo',
+    postJobTitle: 'Post a Job',        postJobSub: 'Kaam post karo',
+    myJobPostsTitle: 'My Job Posts',   myJobPostsSub: 'Mere jobs',
+    findWorkersTitle: 'Find Workers',  findWorkersSub: 'Worker dhundo',
+
+    // ── NEW: Common actions/labels used across many pages ──
+    filters: 'Filters', clear: 'Clear', clearFilters: 'Clear filters',
+    allSkills: 'All skills', allCities: 'All cities', allTypes: 'All types',
+    regular: 'Regular', partTime: 'Part-time', urgentOnly: 'Urgent only',
+    searchJobs: 'Search jobs', voiceSearch: 'Voice search',
+    noJobsFound: 'No jobs available right now', tryRemovingFilters: 'Try removing some filters, or check back soon',
+    willNotify: 'We will notify you when a new job matches your skill',
+    jobFull: 'Job Full', call: 'Call', chat: 'Chat',
+    postedBy: 'Posted by', kmAway: 'km away',
+    showingWithin: (km) => `Showing jobs within ${km}km of you`,
+    noJobsExpanded: (km) => `No jobs within 6km — showing up to ${km}km instead`,
+    locationDenied: 'Location access denied — showing jobs by city/skill filter instead',
   },
   hi: {
     dashboard: 'डैशबोर्ड', findWork: 'काम ढूंढो', myWork: 'मेरा काम',
@@ -90,6 +106,28 @@ const STRINGS = {
     jobsDone: 'पूरे किए काम', noRecords: 'अभी कोई रिकॉर्ड नहीं',
     goodMorning: 'सुप्रभात', goodAfternoon: 'नमस्कार',
     goodEvening: 'शुभ संध्या', quickActions: 'तेज़ काम',
+
+    jobsPosted: 'पोस्ट किए गए काम', rating: 'रेटिंग', worker: 'मजदूर', user: 'उपयोगकर्ता',
+    readyToReceive: (skill) => `${skill} काम के अनुरोध पाने के लिए तैयार`,
+    findWorkTitle: 'काम ढूंढो',      findWorkSub: 'नौकरी खोजें',
+    myWorkTitle: 'मेरा काम',         myWorkSub: 'मेरा काम देखें',
+    portfolioTitle: 'पोर्टफोलियो',    portfolioSub: 'काम की फ़ोटो',
+    verificationTitle: 'सत्यापन',    verificationSub: 'ID सत्यापित करें',
+    postJobTitle: 'काम पोस्ट करें',   postJobSub: 'काम पोस्ट करो',
+    myJobPostsTitle: 'मेरे काम',      myJobPostsSub: 'मेरी पोस्ट',
+    findWorkersTitle: 'मजदूर ढूंढो',  findWorkersSub: 'वर्कर ढूंढो',
+
+    filters: 'फ़िल्टर', clear: 'साफ़ करें', clearFilters: 'फ़िल्टर हटाएं',
+    allSkills: 'सभी काम', allCities: 'सभी शहर', allTypes: 'सभी प्रकार',
+    regular: 'सामान्य', partTime: 'पार्ट-टाइम', urgentOnly: 'सिर्फ़ तुरंत वाले',
+    searchJobs: 'काम खोजें', voiceSearch: 'आवाज़ से खोजें',
+    noJobsFound: 'अभी कोई काम उपलब्ध नहीं है', tryRemovingFilters: 'कुछ फ़िल्टर हटाएं, या बाद में देखें',
+    willNotify: 'नया काम मिलते ही हम आपको बताएंगे',
+    jobFull: 'जगह भर गई', call: 'कॉल करें', chat: 'चैट',
+    postedBy: 'पोस्ट किया', kmAway: 'किमी दूर',
+    showingWithin: (km) => `आपके ${km}किमी के अंदर के काम दिखाए जा रहे हैं`,
+    noJobsExpanded: (km) => `6किमी में कोई काम नहीं — अब ${km}किमी तक दिखाया जा रहा है`,
+    locationDenied: 'लोकेशन नहीं मिली — शहर/काम के अनुसार दिखाया जा रहा है',
   },
   te: {
     dashboard: 'డాష్‌బోర్డ్', findWork: 'పని వెతకండి', myWork: 'నా పని',
@@ -124,6 +162,28 @@ const STRINGS = {
     jobsDone: 'పూర్తయిన పనులు', noRecords: 'ఇంకా రికార్డులు లేవు',
     goodMorning: 'శుభోదయం', goodAfternoon: 'నమస్కారం',
     goodEvening: 'శుభ సాయంత్రం', quickActions: 'త్వరిత చర్యలు',
+
+    jobsPosted: 'పోస్ట్ చేసిన పనులు', rating: 'రేటింగ్', worker: 'కార్మికుడు', user: 'వినియోగదారు',
+    readyToReceive: (skill) => `${skill} పని అభ్యర్థనలను స్వీకరించడానికి సిద్ధంగా ఉన్నారు`,
+    findWorkTitle: 'పనులు చూడండి',    findWorkSub: 'పని వెతకండి',
+    myWorkTitle: 'నా పని',            myWorkSub: 'నా పని చూడండి',
+    portfolioTitle: 'పోర్ట్‌ఫోలియో',    portfolioSub: 'పని ఫోటోలు',
+    verificationTitle: 'ధృవీకరణ',     verificationSub: 'ID ధృవీకరించండి',
+    postJobTitle: 'పని పోస్ట్ చేయండి', postJobSub: 'పని పోస్ట్ చేయండి',
+    myJobPostsTitle: 'నా పనులు',       myJobPostsSub: 'నా పోస్ట్‌లు',
+    findWorkersTitle: 'కార్మికులను వెతకండి', findWorkersSub: 'వర్కర్ వెతకండి',
+
+    filters: 'ఫిల్టర్లు', clear: 'తొలగించు', clearFilters: 'ఫిల్టర్లు తొలగించండి',
+    allSkills: 'అన్ని నైపుణ్యాలు', allCities: 'అన్ని నగరాలు', allTypes: 'అన్ని రకాలు',
+    regular: 'సాధారణ', partTime: 'పార్ట్-టైమ్', urgentOnly: 'అత్యవసరం మాత్రమే',
+    searchJobs: 'పనులు వెతకండి', voiceSearch: 'వాయిస్ సెర్చ్',
+    noJobsFound: 'ప్రస్తుతం పనులు అందుబాటులో లేవు', tryRemovingFilters: 'కొన్ని ఫిల్టర్లు తీసివేయండి, లేదా త్వరలో మళ్ళీ చూడండి',
+    willNotify: 'కొత్త పని వచ్చినప్పుడు మేము మీకు తెలియజేస్తాము',
+    jobFull: 'స్థానం నిండింది', call: 'కాల్ చేయండి', chat: 'చాట్',
+    postedBy: 'పోస్ట్ చేసినవారు', kmAway: 'కి.మీ దూరం',
+    showingWithin: (km) => `మీకు ${km}కి.మీ లోపు పనులు చూపిస్తున్నాము`,
+    noJobsExpanded: (km) => `6కి.మీ లో పనులు లేవు — ఇప్పుడు ${km}కి.మీ వరకు చూపిస్తున్నాము`,
+    locationDenied: 'లొకేషన్ అందుబాటులో లేదు — నగరం/నైపుణ్యం ప్రకారం చూపిస్తున్నాము',
   },
 };
 
@@ -143,13 +203,18 @@ export function LangProvider({ children }) {
 
   useEffect(() => { document.documentElement.lang = lang; }, [lang]);
 
-  const t = (key) => STRINGS[lang]?.[key] ?? STRINGS.en[key] ?? key;
+  // t(key) for plain strings, t(key, arg) for function-based strings
+  // (e.g. t('readyToReceive', 'Painter') or t('showingWithin', 15))
+  const t = (key, arg) => {
+    const val = STRINGS[lang]?.[key] ?? STRINGS.en[key] ?? key;
+    return typeof val === 'function' ? val(arg) : val;
+  };
 
   return (
     <LangContext.Provider value={{
       lang, setLang, t,
-      changeLang: setLang,     // alias — used by voice components
-      languages: LANGUAGES,    // picker list — used by LangSelector
+      changeLang: setLang,
+      languages: LANGUAGES,
     }}>
       {children}
     </LangContext.Provider>

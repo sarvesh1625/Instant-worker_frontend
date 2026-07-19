@@ -2,26 +2,31 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LangContext';
 import AppShell from '../components/AppShell';
 import '../styles/theme.css';
 
+// NOTE: labels/subs are now resolved via t() at render time inside the
+// component (see WORKER_ACTIONS/USER_ACTIONS below), not hardcoded here,
+// so the whole card set switches language correctly.
 const WORKER_ACTIONS = [
-  { icon: 'ti-search',         color: '#059669', bg: '#ECFDF5', label: 'Browse Jobs',  sub: 'Kaam dhundo',    to: '/jobs' },
-  { icon: 'ti-briefcase',      color: '#EA580C', bg: '#FFF7ED', label: 'My Work',      sub: 'Mera kaam',      to: '/my-work' },
-  { icon: 'ti-photo',          color: '#8B5CF6', bg: '#F5F3FF', label: 'Portfolio',    sub: 'Kaam ki photos', to: '/portfolio' },
-  { icon: 'ti-shield-check',   color: '#CA8A04', bg: '#FEFCE8', label: 'Verification', sub: 'ID verify karo', to: '/verification' },
+  { icon: 'ti-search',         color: '#059669', bg: '#ECFDF5', labelKey: 'findWorkTitle',     subKey: 'findWorkSub',     to: '/jobs' },
+  { icon: 'ti-briefcase',      color: '#EA580C', bg: '#FFF7ED', labelKey: 'myWorkTitle',        subKey: 'myWorkSub',       to: '/my-work' },
+  { icon: 'ti-photo',          color: '#8B5CF6', bg: '#F5F3FF', labelKey: 'portfolioTitle',     subKey: 'portfolioSub',    to: '/portfolio' },
+  { icon: 'ti-shield-check',   color: '#CA8A04', bg: '#FEFCE8', labelKey: 'verificationTitle',  subKey: 'verificationSub', to: '/verification' },
 ];
 
 const USER_ACTIONS = [
-  { icon: 'ti-plus',           color: '#059669', bg: '#ECFDF5', label: 'Post a Job',   sub: 'Kaam post karo', to: '/jobs/post' },
-  { icon: 'ti-clipboard-list', color: '#EA580C', bg: '#FFF7ED', label: 'My Job Posts', sub: 'Mere jobs',      to: '/jobs/my' },
-  { icon: 'ti-users',          color: '#8B5CF6', bg: '#F5F3FF', label: 'Find Workers', sub: 'Worker dhundo',  to: '/workers' },
-  { icon: 'ti-shield-check',   color: '#CA8A04', bg: '#FEFCE8', label: 'Verification', sub: 'ID verify karo', to: '/verification' },
+  { icon: 'ti-plus',           color: '#059669', bg: '#ECFDF5', labelKey: 'postJobTitle',      subKey: 'postJobSub',      to: '/jobs/post' },
+  { icon: 'ti-clipboard-list', color: '#EA580C', bg: '#FFF7ED', labelKey: 'myJobPostsTitle',    subKey: 'myJobPostsSub',   to: '/jobs/my' },
+  { icon: 'ti-users',          color: '#8B5CF6', bg: '#F5F3FF', labelKey: 'findWorkersTitle',   subKey: 'findWorkersSub',  to: '/workers' },
+  { icon: 'ti-shield-check',   color: '#CA8A04', bg: '#FEFCE8', labelKey: 'verificationTitle',  subKey: 'verificationSub', to: '/verification' },
 ];
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLang();
   const isWorker = user?.role === 'worker';
 
   const [profile, setProfile]       = useState(null);
@@ -52,10 +57,10 @@ export default function Dashboard() {
   };
 
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const greeting = hour < 12 ? t('goodMorning') : hour < 17 ? t('goodAfternoon') : t('goodEvening');
   const actions = isWorker ? WORKER_ACTIONS : USER_ACTIONS;
 
-  const skillLabel = profile?.worker?.skill || 'your skill';
+  const skillLabel = profile?.worker?.skill || t('yourSkill');
 
   return (
     <AppShell>
@@ -78,7 +83,7 @@ export default function Dashboard() {
             color: isWorker ? 'var(--primary-dark)' : 'var(--secondary-dark)',
           }}>
             <i className={`ti ${isWorker ? 'ti-hammer' : 'ti-user-search'}`} style={{ fontSize: 13 }} aria-hidden="true"></i>
-            {isWorker ? 'Worker' : 'User'}
+            {isWorker ? t('worker') : t('user')}
           </span>
         </div>
 
@@ -108,12 +113,10 @@ export default function Dashboard() {
                   boxShadow: availability ? '0 0 0 3px rgba(74,222,128,.3)' : 'none',
                   animation: availability ? 'il-pulse 1.6s infinite' : 'none',
                 }}></span>
-                {availability ? "You're Online" : "You're Offline"}
+                {availability ? t('online') : t('offline')}
               </p>
               <p style={{ margin: '3px 0 0', fontSize: 13, color: 'rgba(255,255,255,.8)' }}>
-                {availability
-                  ? `Ready to receive ${skillLabel} job requests`
-                  : 'You will not receive new job alerts'}
+                {availability ? t('readyToReceive', skillLabel) : t('notReceiving')}
               </p>
             </div>
             <button
@@ -130,7 +133,7 @@ export default function Dashboard() {
               onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}
               onMouseLeave={e => e.currentTarget.style.transform = 'none'}
             >
-              {toggling ? 'Updating...' : availability ? 'Go Offline' : 'Go Online'}
+              {toggling ? `${t('loading')}` : availability ? t('goOffline') : t('goOnline')}
             </button>
           </div>
         )}
@@ -141,7 +144,7 @@ export default function Dashboard() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
               <i className="ti ti-currency-rupee" style={{ fontSize: 17, color: 'var(--primary-dark)' }} aria-hidden="true"></i>
               <span style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--text-secondary)' }}>
-                {isWorker ? 'Total earned' : 'Total paid'}
+                {isWorker ? t('totalEarned') : t('totalPaid')}
               </span>
             </div>
             <p style={{ margin: 0, fontSize: 22, fontWeight: 800, color: 'var(--text)' }}>
@@ -153,7 +156,7 @@ export default function Dashboard() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
               <i className="ti ti-briefcase" style={{ fontSize: 17, color: 'var(--secondary-dark)' }} aria-hidden="true"></i>
               <span style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--text-secondary)' }}>
-                {isWorker ? 'Jobs done' : 'Jobs posted'}
+                {isWorker ? t('jobsDone') : t('jobsPosted')}
               </span>
             </div>
             <p style={{ margin: 0, fontSize: 22, fontWeight: 800, color: 'var(--text)' }}>
@@ -164,7 +167,7 @@ export default function Dashboard() {
           <div className="il-card" style={{ padding: '16px 18px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
               <i className="ti ti-star" style={{ fontSize: 17, color: '#CA8A04' }} aria-hidden="true"></i>
-              <span style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--text-secondary)' }}>Rating</span>
+              <span style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--text-secondary)' }}>{t('rating')}</span>
             </div>
             <p style={{ margin: 0, fontSize: 22, fontWeight: 800, color: 'var(--text)' }}>
               {(isWorker ? profile?.worker?.rating?.average : profile?.poster?.rating?.average) || '—'}
@@ -176,10 +179,10 @@ export default function Dashboard() {
         </div>
 
         {/* ── Quick actions ── */}
-        <p style={{ margin: '0 0 12px', fontSize: 13.5, fontWeight: 800, color: 'var(--text)' }}>Quick actions</p>
+        <p style={{ margin: '0 0 12px', fontSize: 13.5, fontWeight: 800, color: 'var(--text)' }}>{t('quickActions')}</p>
         <div className="dash-actions" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
           {actions.map(a => (
-            <button key={a.label} onClick={() => navigate(a.to)} className="il-card" style={{
+            <button key={a.labelKey} onClick={() => navigate(a.to)} className="il-card" style={{
               padding: '18px 16px', cursor: 'pointer', textAlign: 'left',
               display: 'flex', flexDirection: 'column', gap: 12,
               transition: 'transform .15s, box-shadow .15s',
@@ -190,8 +193,8 @@ export default function Dashboard() {
                 <i className={`ti ${a.icon}`} style={{ fontSize: 23, color: a.color }} aria-hidden="true"></i>
               </div>
               <div>
-                <p style={{ margin: 0, fontSize: 14.5, fontWeight: 700, color: 'var(--text)' }}>{a.label}</p>
-                <p style={{ margin: '2px 0 0', fontSize: 11.5, color: 'var(--text-tertiary)' }}>{a.sub}</p>
+                <p style={{ margin: 0, fontSize: 14.5, fontWeight: 700, color: 'var(--text)' }}>{t(a.labelKey)}</p>
+                <p style={{ margin: '2px 0 0', fontSize: 11.5, color: 'var(--text-tertiary)' }}>{t(a.subKey)}</p>
               </div>
             </button>
           ))}
