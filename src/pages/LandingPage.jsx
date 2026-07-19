@@ -81,14 +81,12 @@ export default function LandingPage() {
         <div style={{ maxWidth: 1180, margin: '0 auto', padding: '13px 20px', display: 'flex', alignItems: 'center', gap: 14 }}>
           {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <div style={{
-              width: 38, height: 38, borderRadius: 11,
-              background: 'linear-gradient(135deg, #059669, #10B981)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 3px 12px rgba(16,185,129,.35)',
-            }}>
-              <i className="ti ti-bolt" style={{ fontSize: 21, color: '#fff' }} aria-hidden="true"></i>
-            </div>
+            <img
+              src="/logo/icon-mark.svg"
+              alt="InstantWorker"
+              width={38} height={38}
+              style={{ borderRadius: 11, boxShadow: '0 3px 12px rgba(16,185,129,.35)', display: 'block' }}
+            />
             <span style={{ fontSize: 18.5, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em' }}>
               Instant<span style={{ color: '#059669' }}>Worker</span>
             </span>
@@ -588,9 +586,12 @@ export default function LandingPage() {
           <div className="lp-footer" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 32, marginBottom: 36 }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 14 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #059669, #10B981)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <i className="ti ti-bolt" style={{ fontSize: 19, color: '#fff' }} aria-hidden="true"></i>
-                </div>
+                <img
+                  src="/logo/icon-mark.svg"
+                  alt="InstantWorker"
+                  width={36} height={36}
+                  style={{ borderRadius: 10, display: 'block' }}
+                />
                 <span style={{ fontSize: 17, fontWeight: 800, color: '#fff' }}>Instant<span style={{ color: '#10B981' }}>Worker</span></span>
               </div>
               <p style={{ margin: 0, fontSize: 13, color: 'rgba(255,255,255,.5)', lineHeight: 1.7, maxWidth: 300 }}>

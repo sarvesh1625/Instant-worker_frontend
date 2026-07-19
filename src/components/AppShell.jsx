@@ -5,12 +5,6 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import '../styles/theme.css';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// AppShell — sidebar (desktop ≥1024px) + bottom nav (mobile).
-// Includes language switcher and live unread-notification badge.
-// Usage:  return <AppShell> ...page content... </AppShell>
-// ─────────────────────────────────────────────────────────────────────────────
-
 const LANGS = [
   { code: 'en', label: 'EN', full: 'English' },
   { code: 'hi', label: 'हि', full: 'हिन्दी' },
@@ -73,7 +67,6 @@ export default function AppShell({ children }) {
   const sideNav   = isWorker ? WORKER_NAV : USER_NAV;
   const bottomNav = isWorker ? WORKER_BOTTOM : USER_BOTTOM;
 
-  // ── Poll unread notification count every 20s ──
   const loadUnread = async () => {
     try {
       const { data } = await axios.get('/api/notifications');
@@ -88,7 +81,6 @@ export default function AppShell({ children }) {
     return () => clearInterval(iv);
   }, []);
 
-  // Clear the badge the moment the user opens notifications
   useEffect(() => {
     if (location.pathname === '/notifications') {
       const t = setTimeout(loadUnread, 1200);
@@ -164,7 +156,6 @@ export default function AppShell({ children }) {
           >
             <span style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
               <i className={`ti ${item.icon}`} aria-hidden="true"></i>
-              {/* Red dot on the bell icon itself */}
               {item.badge && unread > 0 && (
                 <span style={{
                   position: 'absolute', top: -2, right: -3,
@@ -175,7 +166,6 @@ export default function AppShell({ children }) {
               )}
             </span>
             {t(item.key)}
-            {/* Count pill on the right */}
             {item.badge && unread > 0 && (
               <span style={{
                 marginLeft: 'auto',
@@ -231,6 +221,18 @@ export default function AppShell({ children }) {
               background: '#EF4444', border: '2px solid var(--surface)',
             }}></span>
           )}
+        </button>
+
+        {/* FIX: Logout was only ever reachable from the desktop sidebar,
+            which is hidden below 1024px — mobile users (the large majority
+            of this app's actual audience) had no way to log out at all. */}
+        <button onClick={handleLogout} title={t('logout')} style={{
+          background: 'var(--danger-bg)', border: '1px solid #fecaca', borderRadius: 10,
+          width: 36, height: 36, cursor: 'pointer', color: 'var(--danger)', fontSize: 17,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0,
+        }}>
+          <i className="ti ti-logout" aria-hidden="true"></i>
         </button>
       </div>
 
