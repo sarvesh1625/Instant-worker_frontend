@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useLang } from '../context/LangContext';
 import '../styles/theme.css';
 
 const ID_TYPES = [
@@ -10,15 +11,9 @@ const ID_TYPES = [
   { value: 'driving', label: 'Driving Licence' },
 ];
 
-const STATUS_CONFIG = {
-  not_submitted: { bg: '#F5F6FA', color: '#5B6472', icon: 'ti-id-badge',      title: 'Not verified yet' },
-  pending:       { bg: '#FFF6E8', color: '#B45309', icon: 'ti-clock',        title: 'Under review' },
-  approved:      { bg: '#E9FBF1', color: '#12B76A', icon: 'ti-shield-check', title: 'Verified ✓' },
-  rejected:      { bg: '#FEEDEC', color: '#F04438', icon: 'ti-shield-x',     title: 'Verification rejected' },
-};
-
 export default function Verification() {
   const navigate = useNavigate();
+  const { t } = useLang();
   const [status, setStatus]   = useState(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -31,6 +26,13 @@ export default function Verification() {
   const [selfiePreview, setSelfiePreview] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError]           = useState('');
+
+  const STATUS_CONFIG = {
+    not_submitted: { bg: '#F5F6FA', color: '#5B6472', icon: 'ti-id-badge',      title: t('notVerifiedYet') },
+    pending:       { bg: '#FFF6E8', color: '#B45309', icon: 'ti-clock',        title: t('underReview') },
+    approved:      { bg: '#E9FBF1', color: '#12B76A', icon: 'ti-shield-check', title: t('verifiedStatus') },
+    rejected:      { bg: '#FEEDEC', color: '#F04438', icon: 'ti-shield-x',     title: t('verificationRejected') },
+  };
 
   const load = async () => {
     try {
@@ -71,7 +73,7 @@ export default function Verification() {
 
   if (loading) return (
     <div className="il-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <p className="il-muted" style={{ fontSize: 14 }}>Loading...</p>
+      <p className="il-muted" style={{ fontSize: 14 }}>{t('loading')}</p>
     </div>
   );
 
@@ -100,7 +102,7 @@ export default function Verification() {
       <div className="il-topbar il-topbar-brand">
         <div className="il-topbar-inner" style={{ maxWidth: 600 }}>
           <button onClick={() => navigate(-1)} className="il-back-btn"><i className="ti ti-arrow-left" aria-hidden="true"></i></button>
-          <h1 className="il-topbar-title">ID Verification</h1>
+          <h1 className="il-topbar-title">{t('idVerificationTitle')}</h1>
         </div>
       </div>
 
@@ -114,23 +116,23 @@ export default function Verification() {
 
           {status?.status === 'not_submitted' && (
             <p className="il-muted" style={{ margin: 0, fontSize: 13.5, lineHeight: 1.6 }}>
-              Get a verified badge on your profile. Contractors trust verified workers more.
+              {t('getVerifiedBadge')}
             </p>
           )}
           {status?.status === 'pending' && (
             <p style={{ margin: 0, fontSize: 13.5, color: '#B45309', lineHeight: 1.6 }}>
-              Submitted on {new Date(status.submittedAt).toLocaleDateString('en-IN')}. We review within 24-48 hours.
+              {new Date(status.submittedAt).toLocaleDateString('en-IN')}. {t('reviewWithin')}
             </p>
           )}
           {status?.status === 'approved' && (
             <p style={{ margin: 0, fontSize: 13.5, color: 'var(--success)', lineHeight: 1.6 }}>
-              Your identity is verified. A verified badge now shows on your profile.
+              {t('identityVerified')}
             </p>
           )}
           {status?.status === 'rejected' && (
             <>
               <p style={{ margin: '0 0 8px', fontSize: 13.5, color: 'var(--danger)', lineHeight: 1.6 }}>{status.rejectionReason || 'Document could not be verified.'}</p>
-              <p className="il-muted" style={{ margin: 0, fontSize: 12.5 }}>You can submit again with a clearer photo.</p>
+              <p className="il-muted" style={{ margin: 0, fontSize: 12.5 }}>{t('canResubmit')}</p>
             </>
           )}
         </div>
@@ -138,7 +140,7 @@ export default function Verification() {
         {(status?.status === 'not_submitted' || status?.status === 'rejected') && !showForm && (
           <button onClick={() => setShowForm(true)} className="il-btn il-btn-primary il-btn-block" style={{ padding: 15, fontSize: 15 }}>
             <i className="ti ti-upload" style={{ fontSize: 18 }} aria-hidden="true"></i>
-            {status?.status === 'rejected' ? 'Resubmit ID' : 'Verify my identity'}
+            {status?.status === 'rejected' ? t('resubmitId') : t('verifyMyIdentity')}
           </button>
         )}
 
@@ -147,28 +149,28 @@ export default function Verification() {
             {error && <div style={{ background: 'var(--danger-bg)', border: '1px solid #fecdca', borderRadius: 10, padding: '10px 14px', marginBottom: 14 }}><p style={{ margin: 0, fontSize: 13, color: 'var(--danger)' }}>{error}</p></div>}
 
             <div className="il-field">
-              <label className="il-label">ID Type <span className="il-required">*</span></label>
+              <label className="il-label">{t('idType')} <span className="il-required">*</span></label>
               <select className="il-select" value={idType} onChange={e => setIdType(e.target.value)}>
-                <option value="">Select ID type</option>
-                {ID_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                <option value="">{t('selectIdType')}</option>
+                {ID_TYPES.map(t2 => <option key={t2.value} value={t2.value}>{t2.label}</option>)}
               </select>
             </div>
 
             <div className="il-field">
-              <label className="il-label">ID Number (optional, kept private)</label>
+              <label className="il-label">{t('idNumberOptional')}</label>
               <input className="il-input" type="text" value={idNumber} onChange={e => setIdNumber(e.target.value)} placeholder="e.g. last 4 digits visible publicly" />
             </div>
 
-            <label className="il-label">Photo of your ID <span className="il-required">*</span></label>
-            {uploadBox(docPreview, handleDocChange, { capture: 'environment' }, 'ti-camera', 'Tap to take photo or upload', 'Make sure all details are clearly visible')}
+            <label className="il-label">{t('photoOfId')} <span className="il-required">*</span></label>
+            {uploadBox(docPreview, handleDocChange, { capture: 'environment' }, 'ti-camera', t('tapToUpload'), t('makeSureVisible'))}
 
-            <label className="il-label">Selfie holding your ID (optional, speeds up approval)</label>
-            {uploadBox(selfiePreview, handleSelfieChange, { capture: 'user' }, 'ti-user-circle', 'Tap to add selfie')}
+            <label className="il-label">{t('selfieOptional')}</label>
+            {uploadBox(selfiePreview, handleSelfieChange, { capture: 'user' }, 'ti-user-circle', t('tapAddSelfie'))}
 
             <div style={{ display: 'flex', gap: 10 }}>
-              <button type="button" onClick={() => setShowForm(false)} className="il-btn il-btn-outline" style={{ flex: 1 }}>Cancel</button>
+              <button type="button" onClick={() => setShowForm(false)} className="il-btn il-btn-outline" style={{ flex: 1 }}>{t('cancel')}</button>
               <button type="submit" disabled={submitting} className="il-btn il-btn-primary" style={{ flex: 2 }}>
-                {submitting ? 'Submitting...' : 'Submit for review'}
+                {submitting ? t('submitting') : t('submitForReview')}
               </button>
             </div>
           </form>
@@ -177,7 +179,7 @@ export default function Verification() {
         <div style={{ marginTop: 16, background: 'var(--primary-light)', borderRadius: 12, padding: '13px 15px', display: 'flex', gap: 10 }}>
           <i className="ti ti-lock" style={{ fontSize: 18, color: 'var(--primary)', flexShrink: 0, marginTop: 1 }} aria-hidden="true"></i>
           <p style={{ margin: 0, fontSize: 12, color: 'var(--primary-dark)', lineHeight: 1.6 }}>
-            Your ID document is only visible to our verification team. We never show your full ID number publicly — only the last 4 digits if you choose to share them.
+            {t('privacyNoteVerify')}
           </p>
         </div>
       </div>

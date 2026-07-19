@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LangContext';
 import AppShell from '../components/AppShell';
 import '../styles/theme.css';
 
@@ -10,6 +11,7 @@ const MONTHS = ['January','February','March','April','May','June','July','August
 export default function Wallet() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLang();
   const isWorker = user?.role === 'worker';
 
   const [data, setData]       = useState({ totalEarned: 0, totalSpent: 0, transactions: [] });
@@ -26,7 +28,6 @@ export default function Wallet() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Filter transactions by selected month/year
   const filtered = useMemo(() => {
     return (data.transactions || []).filter(t => {
       const d = new Date(t.createdAt);
@@ -40,7 +41,6 @@ export default function Wallet() {
 
   const lifetimeTotal = isWorker ? data.totalEarned : data.totalSpent;
 
-  // Build year options from actual data (plus current year)
   const years = useMemo(() => {
     const set = new Set([now.getFullYear()]);
     (data.transactions || []).forEach(t => set.add(new Date(t.createdAt).getFullYear()));
@@ -74,22 +74,20 @@ export default function Wallet() {
     <AppShell>
       <div style={{ maxWidth: 980, margin: '0 auto', padding: '22px 18px 30px' }}>
 
-        {/* ── Header ── */}
         <div style={{ marginBottom: 20 }}>
           <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 9 }}>
             <i className="ti ti-wallet" style={{ fontSize: 26, color: 'var(--primary-dark)' }} aria-hidden="true"></i>
-            Wallet
+            {t('walletTitle')}
           </h1>
           <p style={{ margin: '3px 0 0', fontSize: 13.5, color: 'var(--text-secondary)' }}>
-            {isWorker ? 'Meri kamai — your earning records' : 'Payment records for completed jobs'}
+            {isWorker ? t('walletTaglineWorker') : t('walletTaglineUser')}
           </p>
         </div>
 
-        {/* ── Month filter ── */}
         <div className="il-card" style={{ padding: '14px 18px', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, fontWeight: 700, color: 'var(--text-secondary)' }}>
             <i className="ti ti-calendar" style={{ fontSize: 17, color: 'var(--primary-dark)' }} aria-hidden="true"></i>
-            Filter by
+            {t('filterBy')}
           </span>
           <select className="il-select" value={month} onChange={e => setMonth(Number(e.target.value))} style={{ width: 'auto', minWidth: 130, padding: '9px 12px' }}>
             {MONTHS.map((m, i) => <option key={m} value={i}>{m}</option>)}
@@ -99,91 +97,83 @@ export default function Wallet() {
           </select>
         </div>
 
-        {/* ── Stat cards ── */}
         <div className="wallet-stats" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 14, marginBottom: 24 }}>
           <StatCard
             icon="ti-currency-rupee"
-            label={isWorker ? 'Monthly earnings' : 'Monthly payments'}
+            label={isWorker ? t('monthlyEarnings2') : t('monthlyPayments')}
             value={`₹${monthTotal.toLocaleString('en-IN')}`}
-            sub={`${MONTHS[month]} ${year} total`}
+            sub={`${MONTHS[month]} ${year}`}
             gradient="linear-gradient(135deg, #059669, #10B981)"
           />
           <StatCard
             icon="ti-trending-up"
-            label="Average per job"
+            label={t('averagePerJob')}
             value={`₹${avgPerJob.toLocaleString('en-IN')}`}
-            sub={isWorker ? 'Average earning' : 'Average payment'}
+            sub={isWorker ? t('avgEarning') : t('avgPayment')}
             gradient="linear-gradient(135deg, #EA580C, #F97316)"
           />
           <StatCard
             icon="ti-briefcase"
-            label="Jobs done"
+            label={t('jobsDone2')}
             value={monthJobs}
-            sub="Completed this month"
+            sub={t('completedThisMonth')}
             gradient="linear-gradient(135deg, #CA8A04, #FACC15)"
           />
         </div>
 
-        {/* ── Lifetime total strip ── */}
         <div className="il-card" style={{ padding: '16px 20px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           <div style={{ width: 42, height: 42, borderRadius: 12, background: 'var(--primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <i className="ti ti-award" style={{ fontSize: 21, color: 'var(--primary-dark)' }} aria-hidden="true"></i>
           </div>
           <div style={{ flex: 1, minWidth: 150 }}>
             <p style={{ margin: 0, fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>
-              {isWorker ? 'Lifetime earnings' : 'Lifetime payments'}
+              {isWorker ? t('lifetimeEarnings') : t('lifetimePayments')}
             </p>
             <p style={{ margin: '2px 0 0', fontSize: 22, fontWeight: 800, color: 'var(--text)' }}>
               ₹{(lifetimeTotal || 0).toLocaleString('en-IN')}
             </p>
           </div>
           <span style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
-            {data.transactions?.length || 0} total record{data.transactions?.length !== 1 ? 's' : ''}
+            {data.transactions?.length || 0} {t('totalRecords')}
           </span>
         </div>
 
-        {/* ── Info note ── */}
         <div style={{ background: 'var(--primary-light)', border: '1px solid #A7F3D0', borderRadius: 12, padding: '13px 16px', marginBottom: 24, display: 'flex', gap: 11 }}>
           <i className="ti ti-info-circle" style={{ fontSize: 18, color: 'var(--primary-dark)', flexShrink: 0, marginTop: 1 }} aria-hidden="true"></i>
           <p style={{ margin: 0, fontSize: 12.5, color: '#065F46', lineHeight: 1.65 }}>
-            {isWorker
-              ? 'Amounts appear here automatically when your work is marked completed. Payment itself happens directly between you and the job poster (cash or UPI) — Instant Worker takes no commission.'
-              : "Records appear here automatically when you mark a worker's job as completed. Payment itself happens directly between you and the worker (cash or UPI)."}
+            {isWorker ? t('walletInfoWorker') : t('walletInfoUser')}
           </p>
         </div>
 
-        {/* ── Transactions ── */}
         <p style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 800, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 7 }}>
           <i className="ti ti-receipt" style={{ fontSize: 18, color: 'var(--primary-dark)' }} aria-hidden="true"></i>
-          {isWorker ? 'Earnings history' : 'Payment history'}
+          {isWorker ? t('earningsHistory') : t('paymentHistory')}
         </p>
 
-        {loading && <p className="il-muted" style={{ textAlign: 'center', padding: '30px 0', fontSize: 13.5 }}>Loading...</p>}
+        {loading && <p className="il-muted" style={{ textAlign: 'center', padding: '30px 0', fontSize: 13.5 }}>{t('loading')}</p>}
 
         {!loading && filtered.length === 0 && (
           <div className="il-empty">
             <i className="ti ti-wallet-off" aria-hidden="true"></i>
-            <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>No records in {MONTHS[month]} {year}</p>
+            <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>{t('noRecordsIn', [MONTHS[month], year])}</p>
             <p style={{ fontSize: 12.5, marginTop: 5 }}>
               {data.transactions?.length > 0
-                ? 'Try selecting a different month'
-                : isWorker
-                  ? 'Complete your first job and your earning will show here'
-                  : 'Complete a job with a worker and the record will show here'}
+                ? t('tryDifferentMonth')
+                : isWorker ? t('completeFirstJobWorker') : t('completeFirstJobUser')}
             </p>
             {data.transactions?.length === 0 && (
               <button onClick={() => navigate(isWorker ? '/jobs' : '/jobs/post')} className="il-btn il-btn-primary" style={{ marginTop: 16 }}>
-                {isWorker ? 'Find work' : 'Post a job'}
+                {isWorker ? t('findWork') : t('postJob')}
               </button>
             )}
           </div>
         )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {filtered.map(t => {
-            const isCredit = t.type === 'credit';
+          {filtered.map(t2 => {
+            const isCredit = t2.type === 'credit';
             return (
-              <div key={t._id} className="il-card" style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div key={t2._id} className="il-card" style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 14 }}>
                 <div style={{
                   width: 44, height: 44, borderRadius: 13, flexShrink: 0,
                   background: isCredit ? 'var(--primary-light)' : 'var(--secondary-light)',
@@ -194,17 +184,17 @@ export default function Wallet() {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {t.job?.title || t.note || 'Job payment'}
+                    {t2.job?.title || t2.note || 'Job payment'}
                   </p>
                   <p style={{ margin: '3px 0 0', fontSize: 11.5, color: 'var(--text-tertiary)' }}>
-                    {isCredit ? 'From' : 'To'} {t.counterparty?.name || '—'} · {formatDate(t.createdAt)}
+                    {isCredit ? t('from') : t('to2')} {t2.counterparty?.name || '—'} · {formatDate(t2.createdAt)}
                   </p>
                 </div>
                 <p style={{
                   margin: 0, fontSize: 16.5, fontWeight: 800, flexShrink: 0,
                   color: isCredit ? 'var(--primary-dark)' : 'var(--secondary-dark)',
                 }}>
-                  {isCredit ? '+' : '−'}₹{t.amount.toLocaleString('en-IN')}
+                  {isCredit ? '+' : '−'}₹{t2.amount.toLocaleString('en-IN')}
                 </p>
               </div>
             );

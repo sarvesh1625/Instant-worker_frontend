@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LangContext';
 import AppShell from '../components/AppShell';
 import RateWorkModal from '../components/RateWorkModal';
 import '../styles/theme.css';
@@ -9,11 +10,12 @@ import '../styles/theme.css';
 export default function History() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLang();
   const isWorker = user?.role === 'worker';
 
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [rated, setRated]     = useState({});   // jobId-otherId -> true
+  const [rated, setRated]     = useState({});
   const [rateModal, setRateModal] = useState({ open: false, job: null, target: null });
 
   const load = async () => {
@@ -22,7 +24,6 @@ export default function History() {
       const items = data.history || [];
       setHistory(items);
 
-      // Check which ones I've already reviewed
       const checks = items
         .filter(h => h.otherParty?._id)
         .map(h =>
@@ -66,34 +67,34 @@ export default function History() {
       <div style={{ maxWidth: 860, margin: '0 auto', padding: '22px 18px 30px' }}>
 
         <h1 style={{ margin: '0 0 4px', fontSize: 24, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em' }}>
-          History
+          {t('historyTitle')}
         </h1>
-        <p style={{ margin: '0 0 20px', fontSize: 13.5, color: 'var(--text-secondary)' }}>Purane kaam — your completed jobs</p>
+        <p style={{ margin: '0 0 20px', fontSize: 13.5, color: 'var(--text-secondary)' }}>{t('historyTagline')}</p>
 
         {!loading && history.length > 0 && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
             <div className="il-card" style={{ padding: '16px 18px' }}>
-              <p style={{ margin: 0, fontSize: 11.5, color: 'var(--text-tertiary)', fontWeight: 700 }}>Completed jobs</p>
+              <p style={{ margin: 0, fontSize: 11.5, color: 'var(--text-tertiary)', fontWeight: 700 }}>{t('completedJobs')}</p>
               <p style={{ margin: '4px 0 0', fontSize: 25, fontWeight: 800, color: 'var(--text)' }}>{history.length}</p>
             </div>
             <div className="il-card" style={{ padding: '16px 18px' }}>
-              <p style={{ margin: 0, fontSize: 11.5, color: 'var(--text-tertiary)', fontWeight: 700 }}>{isWorker ? 'Total earned' : 'Total paid'}</p>
+              <p style={{ margin: 0, fontSize: 11.5, color: 'var(--text-tertiary)', fontWeight: 700 }}>{isWorker ? t('totalEarned') : t('totalPaid')}</p>
               <p style={{ margin: '4px 0 0', fontSize: 25, fontWeight: 800, color: isWorker ? 'var(--primary-dark)' : 'var(--text)' }}>₹{totalAmount.toLocaleString('en-IN')}</p>
             </div>
           </div>
         )}
 
-        {loading && <p className="il-muted" style={{ textAlign: 'center', padding: '30px 0', fontSize: 13.5 }}>Loading...</p>}
+        {loading && <p className="il-muted" style={{ textAlign: 'center', padding: '30px 0', fontSize: 13.5 }}>{t('loading')}</p>}
 
         {!loading && history.length === 0 && (
           <div className="il-empty">
             <i className="ti ti-history-off" aria-hidden="true"></i>
-            <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>No completed jobs yet</p>
+            <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>{t('noHistory')}</p>
             <p style={{ fontSize: 12.5, marginTop: 5 }}>
-              {isWorker ? 'Finish your first job and it will appear here' : 'Once a worker completes a job, it will appear here'}
+              {isWorker ? t('noHistoryWorker') : t('noHistoryUser')}
             </p>
             <button onClick={() => navigate(isWorker ? '/jobs' : '/jobs/post')} className="il-btn il-btn-primary" style={{ marginTop: 16 }}>
-              {isWorker ? 'Find work' : 'Post a job'}
+              {isWorker ? t('findWork') : t('postJob')}
             </button>
           </div>
         )}
@@ -106,7 +107,7 @@ export default function History() {
               <div key={`${h.jobId}-${i}`} className="il-card" style={{ overflow: 'hidden' }}>
                 <div style={{ background: 'var(--primary-light)', padding: '9px 16px', display: 'flex', alignItems: 'center', gap: 7 }}>
                   <i className="ti ti-circle-check" style={{ fontSize: 15, color: 'var(--primary-dark)' }} aria-hidden="true"></i>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--primary-dark)' }}>Completed · {formatDate(h.completedAt)}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--primary-dark)' }}>{t('completedOn')} · {formatDate(h.completedAt)}</span>
                 </div>
                 <div style={{ padding: '14px 16px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
@@ -129,25 +130,25 @@ export default function History() {
                       </div>
                       <div>
                         <p style={{ margin: 0, fontSize: 12.5, fontWeight: 600, color: 'var(--text)' }}>{h.otherParty?.name}</p>
-                        <p style={{ margin: 0, fontSize: 10.5, color: 'var(--text-tertiary)' }}>{isWorker ? 'You worked for' : 'Worker'}</p>
+                        <p style={{ margin: 0, fontSize: 10.5, color: 'var(--text-tertiary)' }}>{isWorker ? t('worked') : t('worker')}</p>
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button onClick={() => navigate(`/profile/${h.otherParty?._id}`)} className="il-btn il-btn-outline il-btn-sm">
-                        Profile
+                        {t('profile')}
                       </button>
                       {isRated ? (
                         <span className="il-badge" style={{ background: 'var(--primary-light)', color: 'var(--primary-dark)', padding: '7px 12px' }}>
                           <i className="ti ti-circle-check" style={{ fontSize: 14 }} aria-hidden="true"></i>
-                          Rated
+                          {t('rated')}
                         </span>
                       ) : (
                         <button onClick={() => openRate(h)} className="il-btn il-btn-sm" style={{
                           background: 'var(--accent-light)', color: '#854D0E', border: '1.5px solid #FDE68A',
                         }}>
                           <i className="ti ti-star" style={{ fontSize: 14 }} aria-hidden="true"></i>
-                          {isWorker ? 'Rate poster' : 'Rate worker'}
+                          {isWorker ? t('ratePoster') : t('rateWorkerBtn')}
                         </button>
                       )}
                     </div>

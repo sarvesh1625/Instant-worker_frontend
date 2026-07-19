@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
+import { useLang } from '../context/LangContext';
 import AppShell from '../components/AppShell';
 import '../styles/theme.css';
 
 export default function Conversations() {
   const { user }        = useAuth();
   const { onlineUsers } = useSocket();
+  const { t }           = useLang();
   const navigate        = useNavigate();
 
   const [convs, setConvs]                 = useState([]);
@@ -34,7 +36,7 @@ export default function Conversations() {
                 accepted.push({
                   conversationId: `new_${a.worker._id || a.worker}`,
                   otherUser: a.worker,
-                  lastMessage: 'Chat unlocked — say hello!',
+                  lastMessage: t('chatUnlockedSayHello'),
                   lastTime: job.updatedAt,
                   unread: 0, isNew: true, jobTitle: job.title,
                 });
@@ -56,7 +58,7 @@ export default function Conversations() {
               accepted.push({
                 conversationId: `new_${poster._id || poster}`,
                 otherUser: poster,
-                lastMessage: `Accepted for: ${job.title}`,
+                lastMessage: t('acceptedFor', job.title),
                 lastTime: job.updatedAt,
                 unread: 0, isNew: true, jobTitle: job.title,
               });
@@ -79,7 +81,7 @@ export default function Conversations() {
   const formatTime = (d) => {
     if (!d) return '';
     const diff = Date.now() - new Date(d);
-    if (diff < 60000)    return 'Just now';
+    if (diff < 60000)    return t('justNow');
     if (diff < 3600000)  return `${Math.floor(diff / 60000)}m ago`;
     if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
     return new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
@@ -92,27 +94,26 @@ export default function Conversations() {
     <AppShell>
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '22px 18px 30px' }}>
 
-        {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
           <div style={{ flex: 1 }}>
-            <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em' }}>Messages</h1>
-            <p style={{ margin: '3px 0 0', fontSize: 13.5, color: 'var(--text-secondary)' }}>Baatcheet — your chats</p>
+            <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em' }}>{t('messagesTitle')}</h1>
+            <p style={{ margin: '3px 0 0', fontSize: 13.5, color: 'var(--text-secondary)' }}>{t('messagesTagline')}</p>
           </div>
           <button onClick={load} className="il-btn il-btn-outline il-btn-sm">
             <i className="ti ti-refresh" style={{ fontSize: 16 }} aria-hidden="true"></i>
-            Refresh
+            {t('refresh')}
           </button>
         </div>
 
-        {loading && <p className="il-muted" style={{ textAlign: 'center', padding: '40px 0', fontSize: 13.5 }}>Loading chats...</p>}
+        {loading && <p className="il-muted" style={{ textAlign: 'center', padding: '40px 0', fontSize: 13.5 }}>{t('loading')}</p>}
 
         {!loading && allChats.length === 0 && (
           <div className="il-empty">
             <i className="ti ti-message-off" aria-hidden="true"></i>
-            <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>No conversations yet</p>
-            <p style={{ marginTop: 6, fontSize: 12.5 }}>Chat opens after a job application is accepted</p>
+            <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>{t('noConversations')}</p>
+            <p style={{ marginTop: 6, fontSize: 12.5 }}>{t('chatOpensAfter')}</p>
             <button onClick={() => navigate(user?.role === 'worker' ? '/jobs' : '/jobs/my')} className="il-btn il-btn-primary" style={{ marginTop: 16 }}>
-              {user?.role === 'worker' ? 'Find work' : 'View my jobs'}
+              {user?.role === 'worker' ? t('findWork') : t('viewMyJobs')}
             </button>
           </div>
         )}
@@ -146,7 +147,7 @@ export default function Conversations() {
                         : (conv.otherUser?.name?.charAt(0).toUpperCase() || '?')}
                     </div>
                     {isOnline && <span style={{ position: 'absolute', bottom: 1, right: 1, width: 13, height: 13, borderRadius: '50%', background: '#22C55E', border: '2px solid #fff' }}></span>}
-                    {isNew && <span style={{ position: 'absolute', top: -3, right: -4, background: 'var(--primary)', color: '#fff', fontSize: 8, fontWeight: 800, padding: '2px 5px', borderRadius: 6 }}>NEW</span>}
+                    {isNew && <span style={{ position: 'absolute', top: -3, right: -4, background: 'var(--primary)', color: '#fff', fontSize: 8, fontWeight: 800, padding: '2px 5px', borderRadius: 6 }}>{t('newBadge')}</span>}
                   </div>
 
                   <div style={{ flex: 1, minWidth: 0 }}>
