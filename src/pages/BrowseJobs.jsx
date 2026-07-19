@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LangContext';
 import AppShell from '../components/AppShell';
 import JobCard from '../components/JobCard';
 import VoiceSearchButton from '../components/VoiceSearchButton';
@@ -14,6 +15,7 @@ const CITIES = ['', 'Hyderabad', 'Visakhapatnam', 'Vijayawada', 'Warangal', 'Tir
 export default function BrowseJobs() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLang();
 
   const [jobs, setJobs]         = useState([]);
   const [loading, setLoading]   = useState(true);
@@ -23,9 +25,8 @@ export default function BrowseJobs() {
   const [showFilters, setShowFilters] = useState(false);
   const [showVoice, setShowVoice]     = useState(false);
 
-  // ── Geo state ──
-  const coordsRef = useRef(null); // { lat, lng } once GPS resolves — ref avoids re-triggering load()
-  const [geoInfo, setGeoInfo] = useState(null); // { geoSearch, radiusKm } from the last response
+  const coordsRef = useRef(null);
+  const [geoInfo, setGeoInfo] = useState(null);
   const [geoDenied, setGeoDenied] = useState(false);
 
   const load = async (overrideFilters) => {
@@ -55,9 +56,6 @@ export default function BrowseJobs() {
     finally { setLoading(false); }
   };
 
-  // ── On mount: try to get the worker's location once, then load jobs
-  // (with or without it) and quietly sync it to the server for radius
-  // matching on urgent jobs too ──
   useEffect(() => {
     if (!navigator.geolocation) { load(); return; }
 
@@ -65,13 +63,12 @@ export default function BrowseJobs() {
       (pos) => {
         const { latitude: lat, longitude: lng } = pos.coords;
         coordsRef.current = { lat, lng };
-        // Fire-and-forget — keeps worker.location fresh for urgent-job matching
         axios.patch('/api/workers/location', { lat, lng }).catch(() => {});
         load();
       },
       () => {
         setGeoDenied(true);
-        load(); // falls back to the classic city/skill filters, still works
+        load();
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -126,10 +123,10 @@ export default function BrowseJobs() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
           <div style={{ flex: 1, minWidth: 180 }}>
             <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em' }}>
-              Find Work
+              {t('findWork')}
             </h1>
             <p style={{ margin: '3px 0 0', fontSize: 13.5, color: 'var(--text-secondary)' }}>
-              Kaam dhundo — {loading ? 'searching...' : `${jobs.length} job${jobs.length !== 1 ? 's' : ''} available`}
+              {t('findWorkTagline')} — {loading ? t('searching') : t('jobsAvailable2', jobs.length)}
             </p>
           </div>
 
@@ -138,7 +135,7 @@ export default function BrowseJobs() {
             border: '1.5px solid #FED7AA', flexShrink: 0,
           }}>
             <i className="ti ti-microphone" style={{ fontSize: 17 }} aria-hidden="true"></i>
-            Voice search
+            {t('voiceSearch')}
           </button>
 
           <button
@@ -146,7 +143,7 @@ export default function BrowseJobs() {
             className="il-btn il-btn-outline"
             style={{ position: 'relative' }}>
             <i className="ti ti-filter" style={{ fontSize: 17 }} aria-hidden="true"></i>
-            Filters
+            {t('filters')}
             {activeFilterCount > 0 && (
               <span style={{
                 background: 'var(--primary)', color: '#fff', fontSize: 10, fontWeight: 800,
@@ -165,9 +162,7 @@ export default function BrowseJobs() {
           }}>
             <i className="ti ti-map-pin" style={{ fontSize: 15, color: 'var(--primary-dark)' }} aria-hidden="true"></i>
             <p style={{ margin: 0, fontSize: 12.5, color: 'var(--primary-dark)', fontWeight: 600 }}>
-              {geoInfo.radiusKm === 6
-                ? `Showing jobs within ${geoInfo.radiusKm}km of you`
-                : `No jobs within 6km — showing up to ${geoInfo.radiusKm}km instead`}
+              {geoInfo.radiusKm === 6 ? t('showingWithin', geoInfo.radiusKm) : t('noJobsExpanded', geoInfo.radiusKm)}
             </p>
           </div>
         )}
@@ -178,7 +173,7 @@ export default function BrowseJobs() {
           }}>
             <i className="ti ti-map-pin-off" style={{ fontSize: 15, color: '#B45309' }} aria-hidden="true"></i>
             <p style={{ margin: 0, fontSize: 12.5, color: '#92400E', fontWeight: 600 }}>
-              Location access denied — showing jobs by city/skill filter instead. Enable location for nearby matches.
+              {t('locationDenied')}
             </p>
           </div>
         )}
@@ -200,36 +195,36 @@ export default function BrowseJobs() {
           <div className="il-card il-card-pad" style={{ marginBottom: 18 }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 12 }} className="filter-grid">
               <div>
-                <label className="il-label" style={{ fontSize: 12 }}>Skill</label>
+                <label className="il-label" style={{ fontSize: 12 }}>{t('skill')}</label>
                 <select className="il-select" value={filters.skill} onChange={e => setFilters({ ...filters, skill: e.target.value })}>
-                  {SKILLS.map(s => <option key={s} value={s}>{s || 'All skills'}</option>)}
+                  {SKILLS.map(s => <option key={s} value={s}>{s || t('allSkills')}</option>)}
                 </select>
               </div>
               <div>
                 <label className="il-label" style={{ fontSize: 12 }}>
-                  City {geoInfo?.geoSearch && <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>(ignored while using your location)</span>}
+                  {t('city')} {geoInfo?.geoSearch && <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>({t('locationDenied').split(' — ')[0]})</span>}
                 </label>
                 <select className="il-select" value={filters.city} onChange={e => setFilters({ ...filters, city: e.target.value })}>
-                  {CITIES.map(c => <option key={c} value={c}>{c || 'All cities'}</option>)}
+                  {CITIES.map(c => <option key={c} value={c}>{c || t('allCities')}</option>)}
                 </select>
               </div>
               <div>
-                <label className="il-label" style={{ fontSize: 12 }}>Job type</label>
+                <label className="il-label" style={{ fontSize: 12 }}>{t('jobType')}</label>
                 <select className="il-select" value={filters.jobType} onChange={e => setFilters({ ...filters, jobType: e.target.value })}>
-                  <option value="">All types</option>
-                  <option value="urgent">Urgent only</option>
-                  <option value="regular">Regular</option>
-                  <option value="part_time">Part-time</option>
+                  <option value="">{t('allTypes')}</option>
+                  <option value="urgent">{t('urgentOnly')}</option>
+                  <option value="regular">{t('regular')}</option>
+                  <option value="part_time">{t('partTime')}</option>
                 </select>
               </div>
             </div>
             <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
               <button onClick={() => load()} className="il-btn il-btn-primary" style={{ flex: 1 }}>
                 <i className="ti ti-search" style={{ fontSize: 17 }} aria-hidden="true"></i>
-                Search jobs
+                {t('searchJobsBtn')}
               </button>
               {activeFilterCount > 0 && (
-                <button onClick={clearFilters} className="il-btn il-btn-outline">Clear</button>
+                <button onClick={clearFilters} className="il-btn il-btn-outline">{t('clear')}</button>
               )}
             </div>
           </div>
@@ -237,20 +232,18 @@ export default function BrowseJobs() {
 
         {/* ── Loading / empty ── */}
         {loading && (
-          <p className="il-muted" style={{ textAlign: 'center', padding: '40px 0', fontSize: 13.5 }}>Loading jobs...</p>
+          <p className="il-muted" style={{ textAlign: 'center', padding: '40px 0', fontSize: 13.5 }}>{t('loadingJobs')}</p>
         )}
 
         {!loading && jobs.length === 0 && (
           <div className="il-empty">
             <i className="ti ti-briefcase-off" aria-hidden="true"></i>
-            <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>No jobs available right now</p>
+            <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>{t('noJobsFound')}</p>
             <p style={{ fontSize: 12.5, marginTop: 5 }}>
-              {activeFilterCount > 0
-                ? 'Try removing some filters, or check back soon'
-                : 'We will notify you when a new job matches your skill'}
+              {activeFilterCount > 0 ? t('tryRemovingFilters') : t('willNotify')}
             </p>
             {activeFilterCount > 0 && (
-              <button onClick={clearFilters} className="il-btn il-btn-primary" style={{ marginTop: 16 }}>Clear filters</button>
+              <button onClick={clearFilters} className="il-btn il-btn-primary" style={{ marginTop: 16 }}>{t('clearFilters')}</button>
             )}
           </div>
         )}

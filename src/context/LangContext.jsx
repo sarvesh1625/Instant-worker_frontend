@@ -154,6 +154,13 @@ const STRINGS = {
     notifUrgentJobBody: (job, skill, city, wage) => `${job} — ${skill} needed NOW in ${city}. ₹${wage}/day. Tap to respond fast!`,
     notifUrgentFilledTitle: 'Urgent job — worker confirmed! ⚡',
     notifUrgentFilledBody: (name, job) => `${name} accepted your urgent job "${job}" and is on the way. Chat is open now.`,
+
+    // ── NEW: Browse Jobs / Job Card ──
+    findWorkTagline: 'Kaam dhundo', searching: 'searching...',
+    jobsAvailable2: (n) => `${n} job${n !== 1 ? 's' : ''} available`,
+    skill: 'Skill', jobType: 'Job type', searchJobsBtn: 'Search jobs',
+    loadingJobs: 'Loading jobs...', minutesAgo: (n) => `${n}m ago`, hoursAgo: (n) => `${n}h ago`, daysAgo: (n) => `${n}d ago`,
+    by: 'By', needed: 'needed', minAgo: 'm ago',
   },
   hi: {
     dashboard: 'डैशबोर्ड', findWork: 'काम ढूंढो', myWork: 'मेरा काम',
@@ -282,6 +289,12 @@ const STRINGS = {
     notifUrgentJobBody: (job, skill, city, wage) => `${job} — ${city} में अभी ${skill} चाहिए। ₹${wage}/दिन। जल्दी जवाब दें!`,
     notifUrgentFilledTitle: 'तुरंत वाला काम — मजदूर पुष्टि! ⚡',
     notifUrgentFilledBody: (name, job) => `${name} ने आपका तुरंत वाला काम "${job}" स्वीकार किया और रास्ते में है। चैट अब खुली है।`,
+
+    findWorkTagline: 'काम ढूंढो', searching: 'खोज रहे हैं...',
+    jobsAvailable2: (n) => `${n} काम उपलब्ध`,
+    skill: 'काम', jobType: 'काम का प्रकार', searchJobsBtn: 'काम खोजें',
+    loadingJobs: 'काम लोड हो रहे हैं...', minutesAgo: (n) => `${n} मिनट पहले`, hoursAgo: (n) => `${n} घंटे पहले`, daysAgo: (n) => `${n} दिन पहले`,
+    by: 'द्वारा', needed: 'चाहिए', minAgo: 'मिनट पहले',
   },
   te: {
     dashboard: 'డాష్‌బోర్డ్', findWork: 'పని వెతకండి', myWork: 'నా పని',
@@ -410,6 +423,12 @@ const STRINGS = {
     notifUrgentJobBody: (job, skill, city, wage) => `${job} — ${city} లో ఇప్పుడే ${skill} కావాలి. ₹${wage}/రోజు. త్వరగా స్పందించండి!`,
     notifUrgentFilledTitle: 'అత్యవసర పని — కార్మికుడు నిర్ధారించారు! ⚡',
     notifUrgentFilledBody: (name, job) => `${name} మీ అత్యవసర పని "${job}" ను అంగీకరించారు మరియు వస్తున్నారు. చాట్ ఇప్పుడు తెరిచి ఉంది.`,
+
+    findWorkTagline: 'పని వెతకండి', searching: 'వెతుకుతోంది...',
+    jobsAvailable2: (n) => `${n} పనులు అందుబాటులో`,
+    skill: 'నైపుణ్యం', jobType: 'పని రకం', searchJobsBtn: 'పనులు వెతకండి',
+    loadingJobs: 'పనులు లోడ్ అవుతున్నాయి...', minutesAgo: (n) => `${n} నిమిషాల క్రితం`, hoursAgo: (n) => `${n} గంటల క్రితం`, daysAgo: (n) => `${n} రోజుల క్రితం`,
+    by: 'ద్వారా', needed: 'కావాలి', minAgo: 'నిమిషాల క్రితం',
   },
 };
 
