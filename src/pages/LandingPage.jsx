@@ -136,7 +136,9 @@ export default function LandingPage() {
           </nav>
 
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 9, alignItems: 'center' }}>
-            <LangSwitcher />
+            <span className="lp-lang-desktop" style={{ display: 'none' }}>
+              <LangSwitcher />
+            </span>
             <button onClick={() => navigate('/login')} className="lp-login-btn il-btn il-btn-outline il-btn-sm" style={{ borderRadius: 999, padding: '9px 20px' }}>
               {t('loginNav')}
             </button>
@@ -155,6 +157,9 @@ export default function LandingPage() {
 
         {menuOpen && (
           <div className="lp-mobile-menu" style={{ borderTop: '1px solid var(--border)', background: '#fff', padding: '10px 20px 16px' }}>
+            <div style={{ padding: '10px 4px 14px' }}>
+              <LangSwitcher />
+            </div>
             {NAV_LINKS.map(l => (
               <button key={l.href} onClick={() => scrollTo(l.href)} style={{
                 display: 'block', width: '100%', textAlign: 'left',
@@ -688,6 +693,7 @@ export default function LandingPage() {
           .lp-nav-links    { display: flex !important; }
           .lp-hamburger    { display: none !important; }
           .lp-mobile-menu  { display: none !important; }
+          .lp-lang-desktop { display: inline-flex !important; }
           .lp-hero         { grid-template-columns: 1.05fr 1fr !important; }
           .lp-services     { grid-template-columns: 1fr 1fr !important; }
           .lp-steps        { grid-template-columns: repeat(3, 1fr) !important; }
