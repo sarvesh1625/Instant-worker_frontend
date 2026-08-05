@@ -3,21 +3,12 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { T } from './adminTheme';
 
-// ── Dedicated axios instance just for admin requests ─────────────────────────
 export const adminAxios = axios.create();
-
-// FIX: this instance never had a baseURL set, so every relative call like
-// '/api/admin/login' resolved against the CURRENT PAGE'S origin — the
-// Vercel frontend itself — instead of the Render backend. Same class of
-// bug as AuthContext.jsx and SocketContext.jsx, just missed on this file.
-// Falls back to localhost only when VITE_API_URL isn't set (local dev).
 adminAxios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 adminAxios.interceptors.request.use((config) => {
   const token = localStorage.getItem('adminToken');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
@@ -36,12 +27,15 @@ adminAxios.interceptors.response.use(
   }
 );
 
+// NEW: 'Skills' nav item added, so the admin can reach skill management
+// from the sidebar without typing the URL directly.
 const NAV_ITEMS = [
   { icon: 'ti-layout-dashboard', label: 'Dashboard',     path: '/admin/dashboard' },
   { icon: 'ti-users',            label: 'Users',         path: '/admin/users' },
   { icon: 'ti-shield-check',     label: 'Verifications', path: '/admin/verifications' },
   { icon: 'ti-flag',             label: 'Reports',       path: '/admin/reports' },
   { icon: 'ti-briefcase',        label: 'Jobs',          path: '/admin/jobs' },
+  { icon: 'ti-tools',            label: 'Skills',        path: '/admin/skills' },
 ];
 
 const BOTTOM_ITEMS = [

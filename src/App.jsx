@@ -29,6 +29,7 @@ import Verification from './pages/Verification';
 import Wallet from './pages/Wallet';
 import History from './pages/History';
 import Help from './pages/Help';
+import AdminSkills from './pages/admin/AdminSkills';
 
 
 // ── Admin pages ───────────────────────────────────────────────────────────────
@@ -112,7 +113,7 @@ export default function App() {
               <Route path="/admin/reports"       element={<AdminReports />} />
               <Route path="/admin/jobs"          element={<AdminJobs />} />
               <Route path="/admin/verifications" element={<AdminVerifications />} />
-
+              <Route path="/admin/skills" element={<AdminSkills />} />
               <Route path="*" element={<Navigate to="/" replace />} />
 
             </Routes>

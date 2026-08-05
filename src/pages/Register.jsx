@@ -1,22 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import Msg91OtpWidget from '../components/Msg91OtpWidget';
 import '../styles/theme.css';
 
-const SKILLS = ['Labour','Painter','Carpenter','Electrician','Mechanic','Farmer','Driver','Plumber','Welder','Other'];
-
-// From your MSG91 dashboard — tokenAuth is safe to expose client-side,
-// unlike the account authkey (which stays server-only, see authController).
 const MSG91_WIDGET_ID  = import.meta.env.VITE_MSG91_WIDGET_ID;
 const MSG91_TOKEN_AUTH = import.meta.env.VITE_MSG91_TOKEN_AUTH;
 
 export default function Register() {
   const navigate = useNavigate();
-  const { login: authLogin } = useAuth(); // reuse token/user-setting logic after registration
 
-  const [step, setStep] = useState(1); // 1: role, 2: details, 3: verifying
+  const [step, setStep] = useState(1);
   const [role, setRole] = useState('');
   const [form, setForm] = useState({ name: '', phone: '', password: '', skill: '' });
   const [error, setError] = useState('');
@@ -24,8 +19,17 @@ export default function Register() {
   const [widgetTrigger, setWidgetTrigger] = useState(0);
   const [verifying, setVerifying] = useState(false);
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  // NEW: skills now come from the database (admin-managed) instead of a
+  // hardcoded array, so a skill the admin adds shows up here immediately
+  // with no code change or redeploy needed.
+  const [skills, setSkills] = useState([]);
+  useEffect(() => {
+    axios.get('/api/skills')
+      .then(({ data }) => setSkills(data.skills || []))
+      .catch(() => setSkills(['Labour','Painter','Carpenter','Electrician','Mechanic','Farmer','Driver','Plumber','Welder','Other'])); // fallback if the API is briefly unreachable
+  }, []);
 
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
   const selectRole = (r) => { setRole(r); setStep(2); };
 
   const handleDetailsSubmit = (e) => {
@@ -35,8 +39,6 @@ export default function Register() {
       setError('Enter a valid 10-digit mobile number');
       return;
     }
-    // Trigger MSG91's popup for this phone number — the widget shows its
-    // own OTP-entry UI, then calls onVerified/onError below.
     setStep(3);
     setVerifying(true);
     setWidgetTrigger(t => t + 1);
@@ -53,13 +55,12 @@ export default function Register() {
         role,
         skill: role === 'worker' ? form.skill : undefined,
       });
-      // Same finish as AuthContext.login/register — store token, set header
       localStorage.setItem('token', data.token);
       axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-      window.location.href = '/dashboard'; // full reload so AuthContext picks up the new session cleanly
+      window.location.href = '/dashboard';
     } catch (err) {
       setError(err.response?.data?.message || 'Could not complete registration');
-      setStep(2); // let them retry from details, e.g. if phone was already registered
+      setStep(2);
       setVerifying(false);
     } finally {
       setLoading(false);
@@ -98,7 +99,6 @@ export default function Register() {
           </span>
         </button>
 
-        {/* ── Step 1: role ── */}
         {step === 1 && (
           <>
             <h1 style={{ margin: '0 0 6px', fontSize: 24, fontWeight: 800, color: 'var(--text)' }}>Create your account</h1>
@@ -120,7 +120,6 @@ export default function Register() {
           </>
         )}
 
-        {/* ── Step 2: details ── */}
         {step === 2 && (
           <>
             <button onClick={() => setStep(1)} style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)', fontSize: 13, cursor: 'pointer', padding: 0, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -157,7 +156,7 @@ export default function Register() {
                   <label className="il-label">Your main skill</label>
                   <select className="il-select" name="skill" value={form.skill} onChange={handleChange} required>
                     <option value="">Select skill</option>
-                    {SKILLS.map(s => <option key={s} value={s}>{s}</option>)}
+                    {skills.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
               )}
@@ -168,7 +167,6 @@ export default function Register() {
           </>
         )}
 
-        {/* ── Step 3: MSG91 widget handles OTP entry in its own popup ── */}
         {step === 3 && (
           <div style={{ textAlign: 'center', padding: '40px 0' }}>
             <span className="il-spinner" style={{ width: 28, height: 28, borderWidth: 3, borderTopColor: 'var(--primary)', borderColor: 'var(--primary-light)' }}></span>
