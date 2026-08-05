@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LangContext';
 import Msg91OtpWidget from '../components/Msg91OtpWidget';
 import '../styles/theme.css';
 
@@ -10,6 +10,7 @@ const MSG91_TOKEN_AUTH = import.meta.env.VITE_MSG91_TOKEN_AUTH;
 
 export default function Register() {
   const navigate = useNavigate();
+  const { t } = useLang();
 
   const [step, setStep] = useState(1);
   const [role, setRole] = useState('');
@@ -19,14 +20,13 @@ export default function Register() {
   const [widgetTrigger, setWidgetTrigger] = useState(0);
   const [verifying, setVerifying] = useState(false);
 
-  // NEW: skills now come from the database (admin-managed) instead of a
-  // hardcoded array, so a skill the admin adds shows up here immediately
-  // with no code change or redeploy needed.
+  // Skills come from the database (admin-managed) instead of a hardcoded
+  // array, so a skill the admin adds shows up here immediately.
   const [skills, setSkills] = useState([]);
   useEffect(() => {
     axios.get('/api/skills')
       .then(({ data }) => setSkills(data.skills || []))
-      .catch(() => setSkills(['Labour','Painter','Carpenter','Electrician','Mechanic','Farmer','Driver','Plumber','Welder','Other'])); // fallback if the API is briefly unreachable
+      .catch(() => setSkills(['Labour','Painter','Carpenter','Electrician','Mechanic','Farmer','Driver','Plumber','Welder','Other']));
   }, []);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -36,12 +36,12 @@ export default function Register() {
     e.preventDefault();
     setError('');
     if (!/^\d{10}$/.test(form.phone.trim())) {
-      setError('Enter a valid 10-digit mobile number');
+      setError(t('validPhoneErr'));
       return;
     }
     setStep(3);
     setVerifying(true);
-    setWidgetTrigger(t => t + 1);
+    setWidgetTrigger(t2 => t2 + 1);
   };
 
   const handleVerified = async (accessToken) => {
@@ -59,7 +59,7 @@ export default function Register() {
       axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
       window.location.href = '/dashboard';
     } catch (err) {
-      setError(err.response?.data?.message || 'Could not complete registration');
+      setError(err.response?.data?.message || t('couldNotComplete'));
       setStep(2);
       setVerifying(false);
     } finally {
@@ -69,7 +69,7 @@ export default function Register() {
 
   const handleWidgetError = (err) => {
     setVerifying(false);
-    setError(err?.message || 'Phone verification failed or was cancelled. Please try again.');
+    setError(err?.message || t('verifyFailedErr'));
     setStep(2);
   };
 
@@ -79,7 +79,7 @@ export default function Register() {
         <div className="il-card il-card-pad" style={{ maxWidth: 420, textAlign: 'center' }}>
           <i className="ti ti-alert-triangle" style={{ fontSize: 32, color: 'var(--danger)' }} aria-hidden="true"></i>
           <p style={{ marginTop: 12, fontSize: 14, color: 'var(--text)' }}>
-            Registration is temporarily unavailable — missing OTP configuration. Please contact support.
+            {t('registrationUnavailable')}
           </p>
         </div>
       </div>
@@ -101,20 +101,20 @@ export default function Register() {
 
         {step === 1 && (
           <>
-            <h1 style={{ margin: '0 0 6px', fontSize: 24, fontWeight: 800, color: 'var(--text)' }}>Create your account</h1>
-            <p style={{ margin: '0 0 22px', fontSize: 14, color: 'var(--text-secondary)' }}>How will you use Instant Worker?</p>
+            <h1 style={{ margin: '0 0 6px', fontSize: 24, fontWeight: 800, color: 'var(--text)' }}>{t('createAccountTitle')}</h1>
+            <p style={{ margin: '0 0 22px', fontSize: 14, color: 'var(--text-secondary)' }}>{t('howWillYouUse')}</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <button onClick={() => selectRole('worker')} className="il-card il-card-pad" style={{ cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 14 }}>
                 <div style={{ width: 46, height: 46, borderRadius: 13, background: 'var(--primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <i className="ti ti-hammer" style={{ fontSize: 23, color: 'var(--primary-dark)' }} aria-hidden="true"></i>
                 </div>
-                <div><p style={{ margin: 0, fontWeight: 700, color: 'var(--text)' }}>I want to work</p><p style={{ margin: '2px 0 0', fontSize: 12, color: 'var(--text-tertiary)' }}>Find jobs near you</p></div>
+                <div><p style={{ margin: 0, fontWeight: 700, color: 'var(--text)' }}>{t('iWantToWork')}</p><p style={{ margin: '2px 0 0', fontSize: 12, color: 'var(--text-tertiary)' }}>{t('findJobsNearYou')}</p></div>
               </button>
               <button onClick={() => selectRole('user')} className="il-card il-card-pad" style={{ cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 14 }}>
                 <div style={{ width: 46, height: 46, borderRadius: 13, background: 'var(--secondary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <i className="ti ti-user-search" style={{ fontSize: 23, color: 'var(--secondary-dark)' }} aria-hidden="true"></i>
                 </div>
-                <div><p style={{ margin: 0, fontWeight: 700, color: 'var(--text)' }}>I need workers</p><p style={{ margin: '2px 0 0', fontSize: 12, color: 'var(--text-tertiary)' }}>Post jobs and hire</p></div>
+                <div><p style={{ margin: 0, fontWeight: 700, color: 'var(--text)' }}>{t('iNeedWorkers')}</p><p style={{ margin: '2px 0 0', fontSize: 12, color: 'var(--text-tertiary)' }}>{t('postJobsAndHire')}</p></div>
               </button>
             </div>
           </>
@@ -123,10 +123,10 @@ export default function Register() {
         {step === 2 && (
           <>
             <button onClick={() => setStep(1)} style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)', fontSize: 13, cursor: 'pointer', padding: 0, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 5 }}>
-              <i className="ti ti-arrow-left" aria-hidden="true"></i> Back
+              <i className="ti ti-arrow-left" aria-hidden="true"></i> {t('backBtn')}
             </button>
-            <h1 style={{ margin: '0 0 6px', fontSize: 24, fontWeight: 800, color: 'var(--text)' }}>Your details</h1>
-            <p style={{ margin: '0 0 22px', fontSize: 14, color: 'var(--text-secondary)' }}>We'll verify your number with an OTP next</p>
+            <h1 style={{ margin: '0 0 6px', fontSize: 24, fontWeight: 800, color: 'var(--text)' }}>{t('yourDetailsTitle')}</h1>
+            <p style={{ margin: '0 0 22px', fontSize: 14, color: 'var(--text-secondary)' }}>{t('weWillVerifyNext')}</p>
 
             {error && (
               <div style={{ background: 'var(--danger-bg)', border: '1px solid #fecaca', borderRadius: 12, padding: '11px 15px', marginBottom: 16 }}>
@@ -136,32 +136,32 @@ export default function Register() {
 
             <form onSubmit={handleDetailsSubmit}>
               <div className="il-field">
-                <label className="il-label">Full name</label>
-                <input className="il-input" name="name" value={form.name} onChange={handleChange} required placeholder="Your name" />
+                <label className="il-label">{t('fullNameLabel')}</label>
+                <input className="il-input" name="name" value={form.name} onChange={handleChange} required placeholder={t('yourNamePh')} />
               </div>
               <div className="il-field">
-                <label className="il-label">Mobile number</label>
+                <label className="il-label">{t('mobileNumberReg')}</label>
                 <div style={{ position: 'relative' }}>
                   <span style={{ position: 'absolute', left: 15, top: '50%', transform: 'translateY(-50%)', fontSize: 14, fontWeight: 700, color: 'var(--text-tertiary)' }}>+91</span>
                   <input className="il-input" name="phone" value={form.phone} onChange={handleChange} required
-                    placeholder="10-digit number" inputMode="numeric" maxLength={10} style={{ paddingLeft: 52 }} />
+                    placeholder={t('tenDigitNumberReg')} inputMode="numeric" maxLength={10} style={{ paddingLeft: 52 }} />
                 </div>
               </div>
               <div className="il-field">
-                <label className="il-label">Password</label>
-                <input className="il-input" name="password" type="password" value={form.password} onChange={handleChange} required minLength={6} placeholder="At least 6 characters" />
+                <label className="il-label">{t('passwordLabel')}</label>
+                <input className="il-input" name="password" type="password" value={form.password} onChange={handleChange} required minLength={6} placeholder={t('atLeast6Chars')} />
               </div>
               {role === 'worker' && (
                 <div className="il-field">
-                  <label className="il-label">Your main skill</label>
+                  <label className="il-label">{t('yourMainSkill')}</label>
                   <select className="il-select" name="skill" value={form.skill} onChange={handleChange} required>
-                    <option value="">Select skill</option>
+                    <option value="">{t('selectSkillPh')}</option>
                     {skills.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
               )}
               <button type="submit" className="il-btn il-btn-primary il-btn-block" style={{ marginTop: 8, padding: 14 }}>
-                Continue to verification <i className="ti ti-arrow-right" style={{ fontSize: 17 }} aria-hidden="true"></i>
+                {t('continueToVerification')} <i className="ti ti-arrow-right" style={{ fontSize: 17 }} aria-hidden="true"></i>
               </button>
             </form>
           </>
@@ -171,7 +171,7 @@ export default function Register() {
           <div style={{ textAlign: 'center', padding: '40px 0' }}>
             <span className="il-spinner" style={{ width: 28, height: 28, borderWidth: 3, borderTopColor: 'var(--primary)', borderColor: 'var(--primary-light)' }}></span>
             <p style={{ marginTop: 16, fontSize: 14, color: 'var(--text-secondary)' }}>
-              {loading ? 'Creating your account...' : 'Enter the OTP sent to your phone in the popup...'}
+              {loading ? t('creatingAccount') : t('enterOtpInPopup')}
             </p>
             {error && (
               <div style={{ background: 'var(--danger-bg)', border: '1px solid #fecaca', borderRadius: 12, padding: '11px 15px', margin: '16px auto 0', maxWidth: 340 }}>
@@ -193,7 +193,7 @@ export default function Register() {
 
         {step !== 3 && (
           <p style={{ textAlign: 'center', marginTop: 26, fontSize: 13, color: 'var(--text-tertiary)' }}>
-            Already have an account? <Link to="/login" className="il-link">Log in</Link>
+            {t('alreadyHaveAccount')} <Link to="/login" className="il-link">{t('logInLink')}</Link>
           </p>
         )}
       </div>

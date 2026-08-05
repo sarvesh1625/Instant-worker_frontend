@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LangContext';
 import '../styles/theme.css';
 
 const BRAND_IMG = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1000&q=80&auto=format&fit=crop';
 
 export default function Login() {
   const { login } = useAuth();
+  const { t } = useLang();
   const navigate  = useNavigate();
   const [searchParams] = useSearchParams();
   const sessionExpired = searchParams.get('expired') === '1';
@@ -25,9 +27,11 @@ export default function Login() {
       await login(form.phone, form.password);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Wrong phone number or password');
+      setError(err.response?.data?.message || t('wrongCredentials'));
     } finally { setLoading(false); }
   };
+
+  const bullets = [t('loginBullet1'), t('loginBullet2'), t('loginBullet3')];
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', fontFamily: 'var(--font)', background: '#fff' }}>
@@ -57,26 +61,26 @@ export default function Login() {
           {/* Value copy */}
           <div style={{ animation: 'authFadeUp .8s ease both' }}>
             <h2 style={{ margin: '0 0 16px', fontSize: 'clamp(28px, 3vw, 38px)', fontWeight: 800, color: '#fff', lineHeight: 1.2, letterSpacing: '-0.02em', maxWidth: 420 }}>
-              Skilled work,<br />just a tap away.
+              {t('loginTagline1')}<br />{t('loginTagline2')}
             </h2>
             <p style={{ margin: 0, fontSize: 15, color: 'rgba(255,255,255,.75)', lineHeight: 1.7, maxWidth: 380 }}>
-              Find work or hire verified workers in minutes — with zero commission, live tracking, and support in your language.
+              {t('loginValueCopy')}
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 13, marginTop: 30 }}>
-              {['100% free for workers — no commission ever', 'ID-verified profiles with real ratings', 'Live tracking, like following a cab'].map(t => (
-                <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              {bullets.map(b => (
+                <div key={b} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(16,185,129,.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <i className="ti ti-check" style={{ fontSize: 14, color: '#34D399' }} aria-hidden="true"></i>
                   </div>
-                  <span style={{ fontSize: 13.5, color: 'rgba(255,255,255,.85)', fontWeight: 600 }}>{t}</span>
+                  <span style={{ fontSize: 13.5, color: 'rgba(255,255,255,.85)', fontWeight: 600 }}>{b}</span>
                 </div>
               ))}
             </div>
           </div>
 
           <p style={{ margin: 0, fontSize: 12, color: 'rgba(255,255,255,.45)' }}>
-            © 2026 Instant Worker · Andhra Pradesh & Telangana
+            {t('footerCopyright')}
           </p>
         </div>
       </div>
@@ -96,17 +100,17 @@ export default function Login() {
 
         <div style={{ width: '100%', maxWidth: 400, animation: 'authFadeUp .6s ease both' }}>
           <h1 style={{ margin: '0 0 6px', fontSize: 26, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em' }}>
-            Welcome back
+            {t('welcomeBackTitle')}
           </h1>
           <p style={{ margin: '0 0 28px', fontSize: 14, color: 'var(--text-secondary)' }}>
-            Log in to continue to your account
+            {t('loginSubtitle')}
           </p>
 
           {sessionExpired && !error && (
             <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 12, padding: '11px 15px', marginBottom: 18 }}>
               <p style={{ margin: 0, fontSize: 13, color: '#92400E' }}>
                 <i className="ti ti-clock-exclamation" style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden="true"></i>
-                Your session expired. Please log in again.
+                {t('sessionExpiredMsg')}
               </p>
             </div>
           )}
@@ -122,22 +126,22 @@ export default function Login() {
 
           <form onSubmit={handleSubmit}>
             <div className="il-field">
-              <label className="il-label">Mobile number</label>
+              <label className="il-label">{t('mobileNumberField')}</label>
               <div style={{ position: 'relative' }}>
                 <span style={{ position: 'absolute', left: 15, top: '50%', transform: 'translateY(-50%)', fontSize: 14, fontWeight: 700, color: 'var(--text-tertiary)' }}>+91</span>
                 <input className="il-input" name="phone" value={form.phone} onChange={handleChange} required
-                  placeholder="10-digit number" autoComplete="tel" inputMode="numeric" maxLength={10}
+                  placeholder={t('tenDigitNumber')} autoComplete="tel" inputMode="numeric" maxLength={10}
                   style={{ paddingLeft: 52 }} />
               </div>
             </div>
 
             <div className="il-field">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <label className="il-label" style={{ marginBottom: 0 }}>Password</label>
+                <label className="il-label" style={{ marginBottom: 0 }}>{t('passwordField')}</label>
               </div>
               <div style={{ position: 'relative' }}>
                 <input className="il-input" name="password" type={showPass ? 'text' : 'password'} value={form.password} onChange={handleChange} required
-                  placeholder="Your password" autoComplete="current-password" style={{ paddingRight: 46 }} />
+                  placeholder={t('yourPasswordPh')} autoComplete="current-password" style={{ paddingRight: 46 }} />
                 <button type="button" onClick={() => setShowPass(!showPass)} aria-label={showPass ? 'Hide password' : 'Show password'} style={{
                   position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
                   background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', padding: 6,
@@ -149,25 +153,27 @@ export default function Login() {
 
             <button type="submit" disabled={loading} className="il-btn il-btn-primary il-btn-block" style={{ marginTop: 8, padding: 15, fontSize: 15.5, borderRadius: 14 }}>
               {loading
-                ? <><span className="il-spinner"></span> Logging in...</>
-                : <>Log in <i className="ti ti-arrow-right" style={{ fontSize: 18 }} aria-hidden="true"></i></>}
+                ? <><span className="il-spinner"></span> {t('loggingInBtn')}</>
+                : <>{t('logInBtn')} <i className="ti ti-arrow-right" style={{ fontSize: 18 }} aria-hidden="true"></i></>}
             </button>
           </form>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '26px 0' }}>
             <div style={{ flex: 1, height: 1, background: 'var(--border)' }}></div>
-            <span style={{ fontSize: 12, color: 'var(--text-tertiary)', fontWeight: 600 }}>New here?</span>
+            <span style={{ fontSize: 12, color: 'var(--text-tertiary)', fontWeight: 600 }}>{t('newHere')}</span>
             <div style={{ flex: 1, height: 1, background: 'var(--border)' }}></div>
           </div>
 
           <Link to="/register" className="il-btn il-btn-outline il-btn-block" style={{ padding: 14, borderRadius: 14, textDecoration: 'none' }}>
-            Create a free account
+            {t('createFreeAccount')}
           </Link>
 
           <p style={{ textAlign: 'center', marginTop: 26, fontSize: 12, color: 'var(--text-tertiary)', lineHeight: 1.6 }}>
-            By logging in you agree to our{' '}
-            <Link to="/terms" className="il-link" style={{ fontSize: 12 }}>Terms</Link> and{' '}
-            <Link to="/privacy" className="il-link" style={{ fontSize: 12 }}>Privacy Policy</Link>
+            {t('byLoggingIn')}{' '}
+            <Link to="/terms" className="il-link" style={{ fontSize: 12 }}>{t('termsLink')}</Link>{' '}
+            {t('andWord')}{' '}
+            <Link to="/privacy" className="il-link" style={{ fontSize: 12 }}>{t('privacyLink')}</Link>
+            {t('agreeSuffix') ? ` ${t('agreeSuffix')}` : ''}
           </p>
         </div>
       </div>
