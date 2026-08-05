@@ -10,7 +10,31 @@ const MSG91_TOKEN_AUTH = import.meta.env.VITE_MSG91_TOKEN_AUTH;
 
 export default function Register() {
   const navigate = useNavigate();
-  const { t } = useLang();
+  const { t, lang, setLang, languages } = useLang();
+
+  const LangSwitcher = () => (
+    <div style={{
+      display: 'flex', gap: 3, padding: 3,
+      background: 'var(--surface)', borderRadius: 999, border: '1px solid var(--border)',
+    }}>
+      {languages.map(l => (
+        <button
+          key={l.code}
+          onClick={() => setLang(l.code)}
+          title={l.full}
+          style={{
+            padding: '6px 10px', border: 'none', borderRadius: 999, cursor: 'pointer',
+            fontFamily: 'var(--font)', fontSize: 12.5, fontWeight: 800,
+            background: lang === l.code ? 'var(--primary)' : 'transparent',
+            color: lang === l.code ? '#fff' : 'var(--text-secondary)',
+            transition: 'all .15s',
+          }}
+        >
+          {l.label}
+        </button>
+      ))}
+    </div>
+  );
 
   const [step, setStep] = useState(1);
   const [role, setRole] = useState('');
@@ -87,7 +111,10 @@ export default function Register() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', fontFamily: 'var(--font)', padding: 20 }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', fontFamily: 'var(--font)', padding: 20, position: 'relative' }}>
+      <div style={{ position: 'absolute', top: 20, right: 20 }}>
+        <LangSwitcher />
+      </div>
       <div style={{ width: '100%', maxWidth: 420 }}>
 
         <button onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 26 }}>

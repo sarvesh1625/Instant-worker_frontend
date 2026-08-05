@@ -26,7 +26,7 @@ const IMG = {
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { t } = useLang();
+  const { t, lang, setLang, languages } = useLang();
   const [openFaq, setOpenFaq]     = useState(null);
   const [menuOpen, setMenuOpen]   = useState(false);
 
@@ -44,6 +44,30 @@ export default function LandingPage() {
     setMenuOpen(false);
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  const LangSwitcher = () => (
+    <div style={{
+      display: 'flex', gap: 3, padding: 3,
+      background: 'var(--surface)', borderRadius: 999, border: '1px solid var(--border)', flexShrink: 0,
+    }}>
+      {languages.map(l => (
+        <button
+          key={l.code}
+          onClick={() => setLang(l.code)}
+          title={l.full}
+          style={{
+            padding: '6px 10px', border: 'none', borderRadius: 999, cursor: 'pointer',
+            fontFamily: 'var(--font)', fontSize: 12.5, fontWeight: 800,
+            background: lang === l.code ? '#059669' : 'transparent',
+            color: lang === l.code ? '#fff' : 'var(--text-secondary)',
+            transition: 'all .15s',
+          }}
+        >
+          {l.label}
+        </button>
+      ))}
+    </div>
+  );
 
   const NAV_LINKS = [
     { label: t('navServices'), href: '#services' },
@@ -112,6 +136,7 @@ export default function LandingPage() {
           </nav>
 
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 9, alignItems: 'center' }}>
+            <LangSwitcher />
             <button onClick={() => navigate('/login')} className="lp-login-btn il-btn il-btn-outline il-btn-sm" style={{ borderRadius: 999, padding: '9px 20px' }}>
               {t('loginNav')}
             </button>

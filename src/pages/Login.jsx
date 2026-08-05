@@ -8,10 +8,34 @@ const BRAND_IMG = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?
 
 export default function Login() {
   const { login } = useAuth();
-  const { t } = useLang();
+  const { t, lang, setLang, languages } = useLang();
   const navigate  = useNavigate();
   const [searchParams] = useSearchParams();
   const sessionExpired = searchParams.get('expired') === '1';
+
+  const LangSwitcher = () => (
+    <div style={{
+      display: 'flex', gap: 3, padding: 3,
+      background: 'var(--surface)', borderRadius: 999, border: '1px solid var(--border)',
+    }}>
+      {languages.map(l => (
+        <button
+          key={l.code}
+          onClick={() => setLang(l.code)}
+          title={l.full}
+          style={{
+            padding: '6px 10px', border: 'none', borderRadius: 999, cursor: 'pointer',
+            fontFamily: 'var(--font)', fontSize: 12.5, fontWeight: 800,
+            background: lang === l.code ? 'var(--primary)' : 'transparent',
+            color: lang === l.code ? '#fff' : 'var(--text-secondary)',
+            transition: 'all .15s',
+          }}
+        >
+          {l.label}
+        </button>
+      ))}
+    </div>
+  );
 
   const [form, setForm]         = useState({ phone: '', password: '' });
   const [error, setError]       = useState('');
@@ -87,6 +111,10 @@ export default function Login() {
 
       {/* ══ RIGHT — form ══ */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 20px', position: 'relative' }}>
+
+        <div style={{ position: 'absolute', top: 20, right: 20 }}>
+          <LangSwitcher />
+        </div>
 
         {/* Mobile logo */}
         <button onClick={() => navigate('/')} className="auth-mobile-logo" style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 30 }}>
