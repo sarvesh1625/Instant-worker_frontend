@@ -74,12 +74,14 @@ export default function Login() {
         <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', padding: '46px 48px' }}>
           {/* Logo */}
           <button onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'none', border: 'none', cursor: 'pointer', padding: 0, width: 'fit-content' }}>
-            <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(135deg, #047857, #10B981)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(16,185,129,.4)' }}>
-              <i className="ti ti-bolt" style={{ fontSize: 22, color: '#fff' }} aria-hidden="true"></i>
-            </div>
-            <span style={{ fontSize: 19, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>
+          <img
+  src="https://res.cloudinary.com/dxdjlyq72/image/upload/v1785925457/InstantWorker_Logo_pljqcg.png"
+  alt="InstantWorker"
+  style={{ height: 40, width: 'auto', display: 'block' }}
+/>
+            {/* <span style={{ fontSize: 19, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>
               Instant<span style={{ color: '#34D399' }}>Worker</span>
-            </span>
+            </span> */}
           </button>
 
           {/* Value copy */}
@@ -118,12 +120,14 @@ export default function Login() {
 
         {/* Mobile logo */}
         <button onClick={() => navigate('/')} className="auth-mobile-logo" style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 30 }}>
-          <div style={{ width: 42, height: 42, borderRadius: 12, background: 'linear-gradient(135deg, #047857, #10B981)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(16,185,129,.35)' }}>
-            <i className="ti ti-bolt" style={{ fontSize: 23, color: '#fff' }} aria-hidden="true"></i>
-          </div>
-          <span style={{ fontSize: 20, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em' }}>
+         <img
+  src="https://res.cloudinary.com/dxdjlyq72/image/upload/v1785925457/InstantWorker_Logo_pljqcg.png"
+  alt="InstantWorker"
+  style={{ height: 44, width: 'auto', display: 'block' }}
+/>
+          {/* <span style={{ fontSize: 20, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em' }}>
             Instant<span style={{ color: '#059669' }}>Worker</span>
-          </span>
+          </span> */}
         </button>
 
         <div style={{ width: '100%', maxWidth: 400, animation: 'authFadeUp .6s ease both' }}>

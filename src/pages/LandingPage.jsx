@@ -109,15 +109,14 @@ export default function LandingPage() {
       }}>
         <div style={{ maxWidth: 1180, margin: '0 auto', padding: '13px 20px', display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <img
-              src="/logo/icon-mark.svg"
-              alt="InstantWorker"
-              width={38} height={38}
-              style={{ borderRadius: 11, boxShadow: '0 3px 12px rgba(16,185,129,.35)', display: 'block' }}
-            />
-            <span style={{ fontSize: 18.5, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em' }}>
+           <img
+  src="https://res.cloudinary.com/dxdjlyq72/image/upload/v1785925457/InstantWorker_Logo_pljqcg.png"
+  alt="InstantWorker"
+  style={{ height: 40, width: 'auto', display: 'block' }}
+/>
+            {/* <span style={{ fontSize: 18.5, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em' }}>
               Instant<span style={{ color: '#059669' }}>Worker</span>
-            </span>
+            </span> */}
           </div>
 
           <nav className="lp-nav-links" style={{ display: 'none', gap: 4, marginLeft: 22 }}>
@@ -593,12 +592,11 @@ export default function LandingPage() {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 14 }}>
                 <img
-                  src="/logo/icon-mark.svg"
-                  alt="InstantWorker"
-                  width={36} height={36}
-                  style={{ borderRadius: 10, display: 'block' }}
-                />
-                <span style={{ fontSize: 17, fontWeight: 800, color: '#fff' }}>Instant<span style={{ color: '#10B981' }}>Worker</span></span>
+  src="https://res.cloudinary.com/dxdjlyq72/image/upload/v1785925457/InstantWorker_Logo_pljqcg.png"
+  alt="InstantWorker"
+  style={{ height: 40, width: 'auto', display: 'block' }}
+/>
+                {/* <span style={{ fontSize: 17, fontWeight: 800, color: '#fff' }}>Instant<span style={{ color: '#10B981' }}>Worker</span></span> */}
               </div>
               <p style={{ margin: 0, fontSize: 13, color: 'rgba(255,255,255,.5)', lineHeight: 1.7, maxWidth: 300 }}>
                 {t('footerTagline')}
