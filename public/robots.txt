@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /jobs
+Disallow: /profile
+Disallow: /chat
+Disallow: /admin
+
+Sitemap: https://www.instantworker.in/sitemap.xml

@@ -3,21 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <meta name="title" content="Instant Worker – Hire Skilled Workers in Minutes | AP & Telangana" />
     <meta name="google-site-verification" content="grKQUxg0acRwgrr_CUjCjXqWvj0xyaBGIOzVKeo06qs" />
     <meta name="description" content="Hire verified skilled workers or find daily work in minutes. Zero commission, ID-verified, live tracking. Free platform for Andhra Pradesh & Telangana." />
-    <!-- <title>Labour Platform</title> -->
-    <link rel="icon" href="data:,">
+    <link rel="icon" href="https://res.cloudinary.com/dxdjlyq72/image/upload/v1785925457/InstantWorker_Logo_pljqcg.png" type="image/png">
+    <link rel="canonical" href="https://www.instantworker.in/" />
 
     <!-- Tabler Icons — required for all icons in the app -->
-    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" /> -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" crossorigin="anonymous" />
 
     <!-- Google Fonts — better readability for workers -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
-    
 
     <style>
       * { box-sizing: border-box; }
@@ -26,31 +24,33 @@
         font-family: 'Noto Sans', sans-serif;
         background: #f0f4f8;
       }
-      /* Make the whole app feel like a mobile app */
+      /*
+        FIX: previously capped at max-width: 480px and centered, which forced
+        the entire app into mobile width even on desktop — leaving no room
+        for AppShell's fixed-position sidebar (which only activates at
+        >=1024px). AppShell's own CSS already handles both the mobile
+        bottom-nav and desktop sidebar layouts responsively, so #root just
+        needs to be allowed to use the full viewport width.
+      */
       #root {
-        max-width: 480px;
-        margin: 0 auto;
+        width: 100%;
         min-height: 100vh;
         background: #f0f4f8;
       }
     </style>
   </head>
-  
+
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
 
-
-   <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-SR1T4SJS27"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-SR1T4SJS27');
-</script>
-
-
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SR1T4SJS27"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-SR1T4SJS27');
+    </script>
   </body>
 </html>
