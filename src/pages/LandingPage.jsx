@@ -110,7 +110,7 @@ export default function LandingPage() {
         <div style={{ maxWidth: 1180, margin: '0 auto', padding: '13px 20px', display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
            <img
-  src="https://res.cloudinary.com/dxdjlyq72/image/upload/v1785925457/InstantWorker_Logo_pljqcg.png"
+  src="https://res.cloudinary.com/dxdjlyq72/image/upload/v1786430441/InstantWorker_Logo_pljqcg.png"
   alt="InstantWorker"
   style={{ height: 40, width: 'auto', display: 'block' }}
 />
@@ -592,9 +592,9 @@ export default function LandingPage() {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 14 }}>
                 <img
-  src="https://res.cloudinary.com/dxdjlyq72/image/upload/v1785925457/InstantWorker_Logo_pljqcg.png"
+  src="https://res.cloudinary.com/dxdjlyq72/image/upload/v1786430441/InstantWorker_Logo_pljqcg.png"
   alt="InstantWorker"
-  style={{ height: 40, width: 'auto', display: 'block' }}
+  style={{ height: 56, width: 'auto', display: 'block' }}
 />
                 {/* <span style={{ fontSize: 17, fontWeight: 800, color: '#fff' }}>Instant<span style={{ color: '#10B981' }}>Worker</span></span> */}
               </div>
