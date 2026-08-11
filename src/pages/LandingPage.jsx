@@ -112,7 +112,7 @@ export default function LandingPage() {
            <img
   src="https://res.cloudinary.com/dxdjlyq72/image/upload/v1786430441/InstantWorker_Logo_pljqcg.png"
   alt="InstantWorker"
-  style={{ height: 40, width: 'auto', display: 'block' }}
+  style={{ height: 56, width: 'auto', display: 'block' }}
 />
             {/* <span style={{ fontSize: 18.5, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em' }}>
               Instant<span style={{ color: '#059669' }}>Worker</span>
