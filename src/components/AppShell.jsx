@@ -145,7 +145,8 @@ export default function AppShell({ children }) {
   src="https://res.cloudinary.com/dxdjlyq72/image/upload/v1786430441/InstantWorker_Logo_pljqcg.png"
   alt="InstantWorker"
   style={{ height: 56, width: 'auto', display: 'block' }}
-/>          <span className="iw-side-logo-text">Instant<span>Worker</span></span>
+/>      
+    {/* <span className="iw-side-logo-text">Instant<span>Worker</span></span> */}
 
         </div>
 
