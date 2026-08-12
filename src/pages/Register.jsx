@@ -119,9 +119,9 @@ export default function Register() {
 
         <button onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 26 }}>
        <img
-  src="https://res.cloudinary.com/dxdjlyq72/image/upload/v1785925457/InstantWorker_Logo_pljqcg.png"
+  src="https://res.cloudinary.com/dxdjlyq72/image/upload/v1786430441/InstantWorker_Logo_pljqcg.png"
   alt="InstantWorker"
-  style={{ height: 40, width: 'auto', display: 'block' }}
+  style={{ height: 56, width: 'auto', display: 'block' }}
 />
           {/* <span style={{ fontSize: 19, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em' }}>
             Instant<span style={{ color: '#059669' }}>Worker</span>
