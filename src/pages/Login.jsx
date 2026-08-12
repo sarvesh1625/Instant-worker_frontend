@@ -75,7 +75,7 @@ export default function Login() {
           {/* Logo */}
           <button onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'none', border: 'none', cursor: 'pointer', padding: 0, width: 'fit-content' }}>
           <img
-  src="https://res.cloudinary.com/dxdjlyq72/image/upload/v1785925457/InstantWorker_Logo_pljqcg.png"
+   src="https://res.cloudinary.com/dxdjlyq72/image/upload/v1786430441/InstantWorker_Logo_pljqcg.png"
   alt="InstantWorker"
   style={{ height: 40, width: 'auto', display: 'block' }}
 />
@@ -112,7 +112,7 @@ export default function Login() {
       </div>
 
       {/* ══ RIGHT — form ══ */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 20px', position: 'relative' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'left', justifyContent: 'center', padding: '32px 20px', position: 'relative' }}>
 
         <div style={{ position: 'absolute', top: 20, right: 20 }}>
           <LangSwitcher />
