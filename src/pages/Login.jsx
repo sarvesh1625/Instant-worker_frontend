@@ -121,9 +121,9 @@ export default function Login() {
         {/* Mobile logo */}
         <button onClick={() => navigate('/')} className="auth-mobile-logo" style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 30 }}>
          <img
-  src="https://res.cloudinary.com/dxdjlyq72/image/upload/v1785925457/InstantWorker_Logo_pljqcg.png"
+  src="https://res.cloudinary.com/dxdjlyq72/image/upload/v1786430441/InstantWorker_Logo_pljqcg.png"
   alt="InstantWorker"
-  style={{ height: 44, width: 'auto', display: 'block' }}
+  style={{ height: 56, width: 'auto', display: 'block' }}
 />
           {/* <span style={{ fontSize: 20, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em' }}>
             Instant<span style={{ color: '#059669' }}>Worker</span>
