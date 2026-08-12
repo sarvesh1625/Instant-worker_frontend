@@ -136,10 +136,16 @@ export default function AppShell({ children }) {
       {/* ══ Sidebar (desktop) ══ */}
       <aside className="iw-sidebar">
         <div className="iw-side-logo">
-          <div className="iw-side-logo-icon">
+          {/* <div className="iw-side-logo-icon">
             <i className="ti ti-bolt" style={{ fontSize: 22, color: '#fff' }} aria-hidden="true"></i>
           </div>
           <span className="iw-side-logo-text">Instant<span>Worker</span></span>
+        */}
+           <img
+  src="https://res.cloudinary.com/dxdjlyq72/image/upload/v1786430441/InstantWorker_Logo_pljqcg.png"
+  alt="InstantWorker"
+  style={{ height: 56, width: 'auto', display: 'block' }}
+/>
         </div>
 
         <span className="iw-portal-badge">
