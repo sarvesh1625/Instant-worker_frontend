@@ -46,6 +46,7 @@ export default function WorkerProfileSetup() {
       .finally(() => setFetching(false));
   }, []);
 
+  
   const handleChange = (e) => {
     const val = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     setForm({ ...form, [e.target.name]: val });
