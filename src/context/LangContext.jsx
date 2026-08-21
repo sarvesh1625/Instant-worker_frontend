@@ -48,6 +48,7 @@ const STRINGS = {
     jobsDone: 'Jobs done', noRecords: 'No records yet',
     goodMorning: 'Good morning', goodAfternoon: 'Good afternoon',
     goodEvening: 'Good evening', quickActions: 'Quick actions',
+    subscription: 'Subscription',
 
     // ── NEW: Dashboard ──
     jobsPosted: 'Jobs posted', rating: 'Rating', worker: 'Worker', user: 'User',
@@ -328,6 +329,7 @@ const STRINGS = {
     jobsDone: 'पूरे किए काम', noRecords: 'अभी कोई रिकॉर्ड नहीं',
     goodMorning: 'सुप्रभात', goodAfternoon: 'नमस्कार',
     goodEvening: 'शुभ संध्या', quickActions: 'तेज़ काम',
+    subscription: 'सदस्यता',
 
     jobsPosted: 'पोस्ट किए गए काम', rating: 'रेटिंग', worker: 'मजदूर', user: 'उपयोगकर्ता',
     readyToReceive: (skill) => `${skill} काम के अनुरोध पाने के लिए तैयार`,
@@ -582,6 +584,7 @@ const STRINGS = {
     jobsDone: 'పూర్తయిన పనులు', noRecords: 'ఇంకా రికార్డులు లేవు',
     goodMorning: 'శుభోదయం', goodAfternoon: 'నమస్కారం',
     goodEvening: 'శుభ సాయంత్రం', quickActions: 'త్వరిత చర్యలు',
+    subscription: 'సబ్‌స్క్రిప్షన్',
 
     jobsPosted: 'పోస్ట్ చేసిన పనులు', rating: 'రేటింగ్', worker: 'కార్మికుడు', user: 'వినియోగదారు',
     readyToReceive: (skill) => `${skill} పని అభ్యర్థనలను స్వీకరించడానికి సిద్ధంగా ఉన్నారు`,

@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react';
 import AdminLayout, { AdminAuthGuard, adminAxios } from './AdminLayout';
 import { T, ROLE_COLOR, STATUS_COLOR, inputStyle, labelStyle } from './adminTheme';
 
+const CITIES = ['Hyderabad', 'Visakhapatnam', 'Vijayawada', 'Warangal', 'Tirupati', 'Bengaluru', 'Chennai', 'Mumbai', 'Delhi', 'Pune'];
+
 function UsersContent() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState('');
   const [status, setStatus] = useState('');
+  const [city, setCity] = useState('');
   const [search, setSearch] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
   const [actionModal, setActionModal] = useState(null);
@@ -38,6 +41,7 @@ function UsersContent() {
       const params = new URLSearchParams();
       if (role) params.append('role', role);
       if (status) params.append('status', status);
+      if (city) params.append('city', city);
       if (search) params.append('search', search);
       const { data } = await adminAxios.get(`/api/admin/users?${params}`);
       setUsers(data.users);
@@ -45,9 +49,11 @@ function UsersContent() {
     finally { setLoading(false); }
   };
 
-  useEffect(() => { load(); }, [role, status]);
+  useEffect(() => { load(); }, [role, status, city]);
 
   const handleSearch = (e) => { e.preventDefault(); load(); };
+
+  const clearFilters = () => { setRole(''); setStatus(''); setCity(''); setSearch(''); };
 
   const openUserDetail = async (userId) => {
     try {
@@ -157,6 +163,7 @@ function UsersContent() {
   const statusC = (s) => STATUS_COLOR[s] || { color: T.textTertiary, bg: 'rgba(148,163,184,.14)' };
 
   const selectStyle = { ...inputStyle, cursor: 'pointer' };
+  const activeFilterCount = [role, status, city].filter(Boolean).length;
 
   return (
     <div>
@@ -175,7 +182,7 @@ function UsersContent() {
         </button>
       </div>
 
-      <form onSubmit={handleSearch} style={{ display: 'flex', gap: 8, marginTop: 20, marginBottom: 18, flexWrap: 'wrap' }}>
+      <form onSubmit={handleSearch} style={{ display: 'flex', gap: 8, marginTop: 20, marginBottom: 10, flexWrap: 'wrap' }}>
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search name or phone..."
           style={{ ...inputStyle, flex: 1, minWidth: 200 }} />
         <select value={role} onChange={e => setRole(e.target.value)} style={{ ...selectStyle, width: 'auto', minWidth: 130 }}>
@@ -189,6 +196,11 @@ function UsersContent() {
           <option value="suspended">Suspended</option>
           <option value="banned">Banned</option>
         </select>
+        {/* NEW — location filter, same pattern/styling as role and status */}
+        <select value={city} onChange={e => setCity(e.target.value)} style={{ ...selectStyle, width: 'auto', minWidth: 150 }}>
+          <option value="">All locations</option>
+          {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
         <button type="submit" style={{
           padding: '11px 20px', borderRadius: T.radiusSm, border: 'none',
           background: T.accent, color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: T.font,
@@ -196,6 +208,16 @@ function UsersContent() {
           Search
         </button>
       </form>
+
+      {activeFilterCount > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18 }}>
+          <span style={{ fontSize: 11.5, color: T.textTertiary }}>{activeFilterCount} filter{activeFilterCount !== 1 ? 's' : ''} active</span>
+          <button onClick={clearFilters} style={{ background: 'none', border: 'none', color: '#A5B4FC', fontSize: 11.5, fontWeight: 700, cursor: 'pointer', fontFamily: T.font, padding: 0 }}>
+            Clear all
+          </button>
+        </div>
+      )}
+      {activeFilterCount === 0 && <div style={{ marginBottom: 18 }}></div>}
 
       {loading && <p style={{ color: T.textTertiary, fontSize: 13.5 }}>Loading...</p>}
 
@@ -218,7 +240,14 @@ function UsersContent() {
                   <p style={{ margin: 0, fontSize: 13.5, fontWeight: 700, color: T.text }}>{u.name}</p>
                   {u.isVerified && <i className="ti ti-shield-check" style={{ fontSize: 14, color: T.success }} aria-hidden="true"></i>}
                 </div>
-                <p style={{ margin: 0, fontSize: 11.5, color: T.textTertiary }}>{u.phone}{u.city ? ` · ${u.city}` : ''}</p>
+                <p style={{ margin: 0, fontSize: 11.5, color: T.textTertiary }}>
+                  {u.phone}
+                  {u.city ? (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, marginLeft: 6 }}>
+                      <i className="ti ti-map-pin" style={{ fontSize: 11 }} aria-hidden="true"></i> {u.city}{u.area ? `, ${u.area}` : ''}
+                    </span>
+                  ) : ''}
+                </p>
               </div>
               <span style={{ background: rc.bg, color: rc.color, fontSize: 10.5, fontWeight: 700, padding: '3px 10px', borderRadius: 999, textTransform: 'capitalize' }}>{u.role}</span>
               <span style={{ background: sc.bg, color: sc.color, fontSize: 10.5, fontWeight: 700, padding: '3px 10px', borderRadius: 999, textTransform: 'capitalize' }}>{u.accountStatus}</span>
@@ -279,7 +308,10 @@ function UsersContent() {
                   </div>
                   <div style={{ flex: 1 }}>
                     <p style={{ margin: 0, fontSize: 16, fontWeight: 800, color: T.text }}>{selectedUser.user.name}</p>
-                    <p style={{ margin: 0, fontSize: 12, color: T.textTertiary }}>{selectedUser.user.phone}</p>
+                    <p style={{ margin: 0, fontSize: 12, color: T.textTertiary }}>
+                      {selectedUser.user.phone}
+                      {selectedUser.user.city ? ` · ${selectedUser.user.city}${selectedUser.user.area ? `, ${selectedUser.user.area}` : ''}` : ''}
+                    </p>
                   </div>
                   {!editMode && (
                     <button onClick={() => setEditMode(true)} style={{ background: T.accentBg, border: `1px solid ${T.accent}`, color: '#A5B4FC', borderRadius: T.radiusSm, padding: '7px 13px', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: T.font }}>
@@ -535,7 +567,10 @@ function UsersContent() {
                 </div>
                 <div>
                   <label style={labelStyle}>City</label>
-                  <input style={inputStyle} value={addForm.city} onChange={e => setAddForm({ ...addForm, city: e.target.value })} />
+                  <select style={{ ...inputStyle, cursor: 'pointer' }} value={addForm.city} onChange={e => setAddForm({ ...addForm, city: e.target.value })}>
+                    <option value="">Select city</option>
+                    {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
                 </div>
               </div>
               {addForm.role === 'worker' && (

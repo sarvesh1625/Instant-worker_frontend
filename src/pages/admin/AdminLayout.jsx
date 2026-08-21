@@ -36,6 +36,9 @@ const NAV_ITEMS = [
   { icon: 'ti-flag',             label: 'Reports',       path: '/admin/reports' },
   { icon: 'ti-briefcase',        label: 'Jobs',          path: '/admin/jobs' },
   { icon: 'ti-tools',            label: 'Skills',        path: '/admin/skills' },
+  { icon: 'ti-settings', label: 'Settings', path: '/admin/settings' },
+  { icon: 'ti-crown', label: 'Subscriptions', path: '/admin/subscriptions' },
+  { icon: 'ti-trophy', label: 'Top Workers', path: '/admin/leaderboard' },
 ];
 
 const BOTTOM_ITEMS = [

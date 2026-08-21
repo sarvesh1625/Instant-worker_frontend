@@ -25,6 +25,12 @@ const WORKER_NAV = [
   { to: '/help',          icon: 'ti-headset',          key: 'help' },
 ];
 
+// NEW — only ever spliced into a worker's nav conditionally, at runtime,
+// when the platform's subscription toggle is actually on. Never present in
+// the base array, so it can never accidentally leak into the nav via a
+// missed conditional somewhere.
+const SUBSCRIPTION_NAV_ITEM = { to: '/subscription', icon: 'ti-crown', key: 'subscription' };
+
 const USER_NAV = [
   { to: '/dashboard',     icon: 'ti-layout-dashboard', key: 'dashboard' },
   { to: '/jobs/post',     icon: 'ti-plus',             key: 'postJob' },
@@ -62,10 +68,18 @@ export default function AppShell({ children }) {
   const { lang, setLang, t } = useLang();
 
   const [unread, setUnread] = useState(0);
+  const [subscriptionsOn, setSubscriptionsOn] = useState(false);
 
-  const isWorker  = user?.role === 'worker';
-  const sideNav   = isWorker ? WORKER_NAV : USER_NAV;
-  const bottomNav = isWorker ? WORKER_BOTTOM : USER_BOTTOM;
+  const isWorker = user?.role === 'worker';
+
+  // Build nav lists at render time so the subscription item can be
+  // conditionally appended — never present unless the platform toggle
+  // (checked below) says it should be, and only ever for workers, since
+  // the early-access delay only ever affects the worker side.
+  const sideNav   = isWorker
+    ? (subscriptionsOn ? [...WORKER_NAV, SUBSCRIPTION_NAV_ITEM] : WORKER_NAV)
+    : USER_NAV;
+  const bottomNav = isWorker ? WORKER_BOTTOM : USER_BOTTOM; // kept off the bottom nav even when on — 5 slots is already full, reachable via sidebar/menu instead
 
   const loadUnread = async () => {
     try {
@@ -75,8 +89,20 @@ export default function AppShell({ children }) {
     } catch { /* silent — badge just stays as-is */ }
   };
 
+  // Checked once per app load — a public, lightweight endpoint (no auth
+  // needed) that just says whether the subscription system is on
+  // platform-wide. This is what actually keeps the nav item invisible until
+  // an admin flips the toggle, not just "we forgot to link to it".
+  const checkSubscriptionStatus = async () => {
+    try {
+      const { data } = await axios.get('/api/subscriptions/status');
+      setSubscriptionsOn(!!data.enabled);
+    } catch { /* silent — defaults to false/hidden if this fails */ }
+  };
+
   useEffect(() => {
     loadUnread();
+    if (isWorker) checkSubscriptionStatus();
     const iv = setInterval(loadUnread, 20000);
     return () => clearInterval(iv);
   }, []);
@@ -136,18 +162,11 @@ export default function AppShell({ children }) {
       {/* ══ Sidebar (desktop) ══ */}
       <aside className="iw-sidebar">
         <div className="iw-side-logo">
-          {/* <div className="iw-side-logo-icon">
-            <i className="ti ti-bolt" style={{ fontSize: 22, color: '#fff' }} aria-hidden="true"></i>
-          </div>
-          <span className="iw-side-logo-text">Instant<span>Worker</span></span>
-        */}
-           <img
-  src="https://res.cloudinary.com/dxdjlyq72/image/upload/v1786430441/InstantWorker_Logo_pljqcg.png"
-  alt="InstantWorker"
-  style={{ height: 56, width: 'auto', display: 'block' }}
-/>      
-    {/* <span className="iw-side-logo-text">Instant<span>Worker</span></span> */}
-
+          <img
+            src="https://res.cloudinary.com/dxdjlyq72/image/upload/v1786430441/InstantWorker_Logo_pljqcg.png"
+            alt="InstantWorker"
+            style={{ height: 56, width: 'auto', display: 'block' }}
+          />
         </div>
 
         <span className="iw-portal-badge">
@@ -163,7 +182,7 @@ export default function AppShell({ children }) {
             style={{ position: 'relative' }}
           >
             <span style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <i className={`ti ${item.icon}`} aria-hidden="true"></i>
+              <i className={`ti ${item.icon}`} style={item.key === 'subscription' ? { color: '#F59E0B' } : undefined} aria-hidden="true"></i>
               {item.badge && unread > 0 && (
                 <span style={{
                   position: 'absolute', top: -2, right: -3,
@@ -208,10 +227,11 @@ export default function AppShell({ children }) {
 
       {/* ══ Mobile top bar ══ */}
       <div className="iw-mobile-top">
-        <div className="iw-side-logo-icon" style={{ width: 34, height: 34, borderRadius: 10 }}>
-          <i className="ti ti-bolt" style={{ fontSize: 19, color: '#fff' }} aria-hidden="true"></i>
-        </div>
-        <span className="iw-side-logo-text" style={{ fontSize: 16, flex: 1 }}>Instant<span>Worker</span></span>
+        <img
+          src="https://res.cloudinary.com/dxdjlyq72/image/upload/v1786430441/InstantWorker_Logo_pljqcg.png"
+          alt="InstantWorker"
+          style={{ height: 32, width: 'auto', display: 'block', flex: 1, maxWidth: 140, objectFit: 'contain', objectPosition: 'left' }}
+        />
 
         <LangSwitcher compact />
 
@@ -231,9 +251,6 @@ export default function AppShell({ children }) {
           )}
         </button>
 
-        {/* FIX: Logout was only ever reachable from the desktop sidebar,
-            which is hidden below 1024px — mobile users (the large majority
-            of this app's actual audience) had no way to log out at all. */}
         <button onClick={handleLogout} title={t('logout')} style={{
           background: 'var(--danger-bg)', border: '1px solid #fecaca', borderRadius: 10,
           width: 36, height: 36, cursor: 'pointer', color: 'var(--danger)', fontSize: 17,
@@ -243,6 +260,21 @@ export default function AppShell({ children }) {
           <i className="ti ti-logout" aria-hidden="true"></i>
         </button>
       </div>
+
+      {/* ══ Mobile subscription banner — only spot it appears on mobile,
+          since the bottom nav's 5 slots stay unchanged. Small, dismissible-
+          feeling, never blocks anything. ══ */}
+      {isWorker && subscriptionsOn && (
+        <button onClick={() => navigate('/subscription')} className="iw-mobile-sub-banner" style={{
+          display: 'none', width: '100%', border: 'none', cursor: 'pointer',
+          background: 'linear-gradient(135deg, #059669, #10B981)',
+          padding: '9px 16px', alignItems: 'center', gap: 8, fontFamily: 'var(--font)',
+        }}>
+          <i className="ti ti-crown" style={{ fontSize: 15, color: '#fff' }} aria-hidden="true"></i>
+          <span style={{ fontSize: 12.5, fontWeight: 700, color: '#fff', flex: 1, textAlign: 'left' }}>{t('subscription')}</span>
+          <i className="ti ti-chevron-right" style={{ fontSize: 15, color: 'rgba(255,255,255,.8)' }} aria-hidden="true"></i>
+        </button>
+      )}
 
       {/* ══ Page content ══ */}
       <main className="iw-main">{children}</main>
@@ -274,6 +306,12 @@ export default function AppShell({ children }) {
           </button>
         ))}
       </nav>
+
+      <style>{`
+        @media (max-width: 1023px) {
+          .iw-mobile-sub-banner { display: flex !important; }
+        }
+      `}</style>
     </div>
   );
 }
