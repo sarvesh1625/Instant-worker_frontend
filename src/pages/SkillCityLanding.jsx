@@ -6,28 +6,19 @@ import '../styles/theme.css';
 
 const unslugify = (slug) =>
   slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-
 const slugify = (str) => String(str).toLowerCase().trim().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
 
 const LOGO_URL = 'https://res.cloudinary.com/dxdjlyq72/image/upload/v1786430441/InstantWorker_Logo_pljqcg.png';
-const HERO_IMG = 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1000&q=80&auto=format&fit=crop';
+const HERO_IMG = 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=900&q=80&auto=format&fit=crop';
 
-const HOW_IT_WORKS = [
-  { n: '1', title: 'Post what you need', desc: 'Describe the job, your city, and your budget — takes under a minute.' },
-  { n: '2', title: 'Connect directly', desc: 'Message verified workers directly in the app — no agency, no middleman.' },
-  { n: '3', title: 'Pay zero commission', desc: 'Agree a price and pay the worker directly. Instant Worker never takes a cut.' },
-];
-
-const WHY_US = [
-  { icon: '🛡️', title: 'ID-verified workers', desc: 'Every profile is checked before they can accept jobs.' },
-  { icon: '💬', title: 'Direct messaging', desc: 'Chat unlocks once a job is agreed — no spam, no cold calls.' },
-  { icon: '📍', title: 'Live job tracking', desc: 'See your worker en route once the job starts.' },
-  { icon: '💰', title: 'Zero commission', desc: 'Workers keep 100% of what they earn, always.' },
+const STEPS = [
+  { n: '01', title: 'Post the job', desc: 'What you need, where, and your budget.' },
+  { n: '02', title: 'Worker responds', desc: 'A verified worker near you takes the job.' },
+  { n: '03', title: 'Pay direct', desc: 'No commission — settle up between the two of you.' },
 ];
 
 const SUPPORT = {
   email: 'support247instantworker@gmail.com',
-  phone: '+91 93906 83569',
   whatsapp: '919390683569',
 };
 
@@ -45,9 +36,7 @@ export default function SkillCityLanding() {
   const [searchCity, setSearchCity] = useState(city);
 
   useEffect(() => {
-    axios.get('/api/skills')
-      .then(({ data }) => setAllSkills(data.skills || []))
-      .catch(() => {});
+    axios.get('/api/skills').then(({ data }) => setAllSkills(data.skills || [])).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -55,15 +44,12 @@ export default function SkillCityLanding() {
     setSearchCity(city);
   }, [skill, city]);
 
-  const goToSkillCity = (newSkill, newCity) => {
-    if (!newSkill.trim() || !newCity.trim()) return;
-    navigate(`/workers/${slugify(newSkill.trim())}/${slugify(newCity.trim())}`);
+  const goToSkillCity = (s, c) => {
+    if (!s.trim() || !c.trim()) return;
+    navigate(`/workers/${slugify(s.trim())}/${slugify(c.trim())}`);
   };
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    goToSkillCity(searchSkill, searchCity);
-  };
+  const hasWorkers = !loading && workers.length > 0;
 
   useEffect(() => {
     setLoading(true);
@@ -73,251 +59,280 @@ export default function SkillCityLanding() {
       .finally(() => setLoading(false));
   }, [skill, city]);
 
-  const hasWorkers = !loading && workers.length > 0;
-  const pageTitle = `${skill} in ${city}`;
-  const pageDescription = `Find verified ${skillLower} services in ${city}. Zero commission, direct contact, live job tracking on Instant Worker.`;
-
   return (
-    <div className="il-page" style={{ background: '#fff' }}>
+    <div style={{ background: '#fff', fontFamily: 'var(--font)' }}>
       <SEO
-        title={pageTitle}
-        description={pageDescription}
+        title={`${skill} in ${city}`}
+        description={`Find verified ${skillLower} services in ${city}. Zero commission, direct contact, live job tracking on Instant Worker.`}
         path={`/workers/${skillSlug}/${citySlug}`}
         noindex={!loading && !hasWorkers}
       />
 
-      {/* ══ HEADER ══ */}
+      {/* ══ Header ══ */}
       <header style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '16px 24px', borderBottom: '1px solid var(--border)', maxWidth: 1100, margin: '0 auto',
+        padding: '18px 24px', maxWidth: 1080, margin: '0 auto',
       }}>
         <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-          <img src={LOGO_URL} alt="InstantWorker" style={{ height: 40, width: 'auto', display: 'block' }} />
+          <img src={LOGO_URL} alt="InstantWorker" style={{ height: 36, width: 'auto', display: 'block' }} />
         </button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-          <Link to="/login" className="il-link" style={{ fontSize: 14 }}>Log in</Link>
-          <Link to="/register" className="il-btn il-btn-primary il-btn-sm" style={{ textDecoration: 'none' }}>
-            Get Started
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+          <Link to="/login" style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', textDecoration: 'none' }}>Log in</Link>
+          <Link to="/register" style={{
+            fontSize: 14, fontWeight: 700, color: '#fff', background: 'var(--primary-dark)',
+            padding: '9px 18px', borderRadius: 8, textDecoration: 'none',
+          }}>
+            Get started
           </Link>
         </div>
       </header>
 
-      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '0 20px' }}>
+      {/* ══ Hero — split, left-aligned, search built in ══ */}
+      <section style={{ borderBottom: '1px solid var(--border)' }}>
+        <div style={{
+          maxWidth: 1080, margin: '0 auto', padding: '40px 24px 56px',
+          display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: 48, alignItems: 'center',
+        }} className="scl-hero-grid">
+          <div>
+            <p style={{ margin: '0 0 10px', fontSize: 13.5, fontWeight: 700, color: 'var(--primary-dark)' }}>
+              {city}
+            </p>
+            <h1 style={{
+              margin: '0 0 18px', fontSize: 'clamp(32px, 4vw, 46px)', fontWeight: 800,
+              color: 'var(--text)', lineHeight: 1.08, letterSpacing: '-0.02em',
+            }}>
+              Find a {skillLower} you can actually trust
+            </h1>
+            <p style={{ fontSize: 16, color: 'var(--text-secondary)', lineHeight: 1.65, maxWidth: 440, marginBottom: 28 }}>
+              Every {skillLower} on Instant Worker is ID-verified before they can take a job in {city}.
+              You message them directly and pay them directly — no agency taking a cut in between.
+            </p>
 
-        {/* ══ HERO ══ */}
-        <section style={{ padding: '56px 0 40px', textAlign: 'center' }}>
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            background: 'var(--primary-light)', color: 'var(--primary-dark)',
-            borderRadius: 999, padding: '6px 16px', fontSize: 12.5, fontWeight: 700, marginBottom: 20,
-          }}>
-            ✨ Serving {city} and nearby areas
-          </div>
-          <h1 style={{ fontSize: 'clamp(30px, 4vw, 44px)', fontWeight: 800, color: 'var(--text)', lineHeight: 1.15, marginBottom: 16, letterSpacing: '-0.02em' }}>
-            Verified {skill} services<br />in <span style={{ color: 'var(--primary-dark)' }}>{city}</span>
-          </h1>
-          <p style={{ fontSize: 16, color: 'var(--text-secondary)', maxWidth: 560, margin: '0 auto 28px', lineHeight: 1.6 }}>
-            Connect directly with ID-verified {skillLower}s in {city}. No agency, no middleman —
-            just zero-commission hiring with live job tracking built in.
-          </p>
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/register" className="il-btn il-btn-primary" style={{ padding: '14px 28px', textDecoration: 'none' }}>
-              Post a job — it's free
-            </Link>
-            <Link to="/register" className="il-btn il-btn-outline" style={{ padding: '14px 28px', textDecoration: 'none' }}>
-              I'm a {skillLower}, sign me up
-            </Link>
-          </div>
-
-          <img
-            src={HERO_IMG}
-            alt={`${skill} services in ${city}`}
-            style={{ width: '100%', maxWidth: 800, height: 280, objectFit: 'cover', borderRadius: 20, marginTop: 40, boxShadow: 'var(--shadow-md)' }}
-          />
-        </section>
-
-        {/* ══ Search / switch skill or city ══ */}
-        <section style={{ paddingBottom: 24 }}>
-          <form
-            onSubmit={handleSearchSubmit}
-            className="il-card il-card-pad"
-            style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-end' }}
-          >
-            <div style={{ flex: '1 1 200px' }}>
-              <label className="il-label">Looking for a different skill?</label>
+            {/* Search bar, part of the hero, not a floating card */}
+            <form
+              onSubmit={(e) => { e.preventDefault(); goToSkillCity(searchSkill, searchCity); }}
+              style={{
+                display: 'flex', border: '2px solid var(--text)', borderRadius: 10, overflow: 'hidden', maxWidth: 460,
+              }}
+            >
               <select
-                className="il-select"
                 value={searchSkill}
                 onChange={e => setSearchSkill(e.target.value)}
+                style={{
+                  border: 'none', borderRight: '1px solid var(--border)', padding: '13px 12px',
+                  fontSize: 14, fontFamily: 'var(--font)', color: 'var(--text)', background: '#fff', flex: '1 1 40%',
+                }}
               >
                 {!allSkills.includes(skill) && <option value={skill}>{skill}</option>}
                 {allSkills.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
-            </div>
-            <div style={{ flex: '1 1 160px' }}>
-              <label className="il-label">City</label>
               <input
-                className="il-input"
                 value={searchCity}
                 onChange={e => setSearchCity(e.target.value)}
                 placeholder="City"
+                style={{
+                  border: 'none', padding: '13px 12px', fontSize: 14, fontFamily: 'var(--font)',
+                  flex: '1 1 40%', outline: 'none', minWidth: 0,
+                }}
               />
-            </div>
-            <button type="submit" className="il-btn il-btn-primary" style={{ flexShrink: 0 }}>
-              Search
-            </button>
-          </form>
+              <button type="submit" style={{
+                border: 'none', background: 'var(--text)', color: '#fff', fontWeight: 700,
+                fontSize: 14, padding: '0 22px', cursor: 'pointer', flexShrink: 0,
+              }}>
+                Search
+              </button>
+            </form>
 
-          {allSkills.filter(s => s !== skill).length > 0 && (
-            <div style={{ marginTop: 14, display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
-              <span style={{ fontSize: 12.5, color: 'var(--text-tertiary)', fontWeight: 600, alignSelf: 'center' }}>
-                Also popular in {city}:
-              </span>
-              {allSkills.filter(s => s !== skill).slice(0, 6).map(s => (
-                <button
-                  key={s}
-                  onClick={() => goToSkillCity(s, city)}
-                  style={{
-                    background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 999,
-                    padding: '5px 14px', fontSize: 12.5, fontWeight: 600, color: 'var(--text-secondary)',
-                    cursor: 'pointer', fontFamily: 'var(--font)',
-                  }}
-                >
-                  {s}
-                </button>
-              ))}
+            {allSkills.filter(s => s !== skill).length > 0 && (
+              <p style={{ marginTop: 14, fontSize: 13, color: 'var(--text-tertiary)' }}>
+                Also searched in {city}:{' '}
+                {allSkills.filter(s => s !== skill).slice(0, 5).map((s, i, arr) => (
+                  <span key={s}>
+                    <Link to={`/workers/${slugify(s)}/${citySlug}`} style={{ color: 'var(--primary-dark)', fontWeight: 600 }}>
+                      {s}
+                    </Link>
+                    {i < arr.length - 1 ? ', ' : ''}
+                  </span>
+                ))}
+              </p>
+            )}
+          </div>
+
+          <img
+            src={HERO_IMG}
+            alt={`${skill} in ${city}`}
+            style={{ width: '100%', height: 380, objectFit: 'cover', borderRadius: 14 }}
+          />
+        </div>
+      </section>
+
+      <div style={{ maxWidth: 1080, margin: '0 auto', padding: '0 24px' }}>
+
+        {/* ══ Worker directory — ledger style, not card grid ══ */}
+        <section style={{ padding: '48px 0', borderBottom: '1px solid var(--border)' }}>
+          {loading ? (
+            <p style={{ color: 'var(--text-tertiary)', fontSize: 14 }}>Loading…</p>
+          ) : hasWorkers ? (
+            <>
+              <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--text)', marginBottom: 4 }}>
+                {skill}s in {city}
+              </h2>
+              <p style={{ fontSize: 13.5, color: 'var(--text-tertiary)', marginBottom: 22 }}>
+                {workers.length} verified worker{workers.length !== 1 ? 's' : ''}
+              </p>
+              <div>
+                {workers.map((w, i) => (
+                  <Link
+                    key={w._id}
+                    to={`/worker/${w._id}`}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 16, padding: '16px 0',
+                      borderTop: i === 0 ? '1px solid var(--border)' : 'none',
+                      borderBottom: '1px solid var(--border)', textDecoration: 'none',
+                    }}
+                  >
+                    <div style={{
+                      width: 44, height: 44, borderRadius: '50%', background: 'var(--primary-light)',
+                      color: 'var(--primary-dark)', fontWeight: 800, fontSize: 16,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                    }}>
+                      {w.name?.charAt(0).toUpperCase()}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ margin: 0, fontWeight: 700, color: 'var(--text)', fontSize: 15 }}>{w.name}</p>
+                      <p style={{ margin: '2px 0 0', fontSize: 13, color: 'var(--text-secondary)' }}>
+                        {w.worker?.experience || 0} yrs experience
+                        {w.worker?.rating?.average > 0 && ` · ${w.worker.rating.average.toFixed(1)}★ (${w.worker.rating.count})`}
+                      </p>
+                    </div>
+                    <p style={{ margin: 0, fontWeight: 800, color: 'var(--text)', fontSize: 16, flexShrink: 0 }}>
+                      ₹{w.worker?.wagePerDay || '—'}<span style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-tertiary)' }}>/day</span>
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div style={{ padding: '28px 0' }}>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--text)', marginBottom: 6 }}>
+                No {skillLower}s listed in {city} yet
+              </h2>
+              <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 18, maxWidth: 440 }}>
+                Post the job anyway — we'll notify {skillLower}s in {city} as soon as they join, or be the
+                first to sign up if you do this work yourself.
+              </p>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                <Link to="/register" style={{
+                  fontSize: 14, fontWeight: 700, color: '#fff', background: 'var(--primary-dark)',
+                  padding: '11px 20px', borderRadius: 8, textDecoration: 'none',
+                }}>
+                  Post a job
+                </Link>
+                <Link to="/register" style={{
+                  fontSize: 14, fontWeight: 700, color: 'var(--text)', border: '1.5px solid var(--border)',
+                  padding: '11px 20px', borderRadius: 8, textDecoration: 'none',
+                }}>
+                  I'm a {skillLower}
+                </Link>
+              </div>
             </div>
           )}
         </section>
 
-        {/* ══ Unique content block — genuinely tailored, not templated filler ══ */}
-        <section style={{ padding: '20px 0 40px', maxWidth: 720, margin: '0 auto' }}>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--text)', marginBottom: 14 }}>
-            Hiring a {skillLower} in {city}?
+        {/* ══ Editorial content — narrow measure, not a card ══ */}
+        <section style={{ padding: '48px 0', borderBottom: '1px solid var(--border)', maxWidth: 620 }}>
+          <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--text)', marginBottom: 14 }}>
+            Hiring a {skillLower} in {city}
           </h2>
-          <p style={{ fontSize: 14.5, color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: 14 }}>
-            Whether it's a one-time repair or ongoing work, finding a reliable {skillLower} in {city} usually
-            means asking around or trusting a listing with no real accountability. Instant Worker fixes that —
-            every {skillLower} on the platform goes through ID verification before they can accept a single job,
-            and you deal with them directly. No call-center middleman marking up the price, no vanishing after a
-            deposit.
+          <p style={{ fontSize: 15, color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: 16 }}>
+            Finding a reliable {skillLower} in {city} usually means asking a neighbor, or trusting a listing
+            with no real accountability behind it. Instant Worker checks the ID of every {skillLower} before
+            they're allowed to take a single job — so the person who shows up is who you agreed to hire.
           </p>
-          <p style={{ fontSize: 14.5, color: 'var(--text-secondary)', lineHeight: 1.75 }}>
-            Once you post a job, you can message the worker directly in the app, track their arrival live on
-            the day of the work, and pay them however you agree — Instant Worker never takes a cut of what
-            you pay.
+          <p style={{ fontSize: 15, color: 'var(--text-secondary)', lineHeight: 1.75 }}>
+            Once a job's agreed, you can track them on the way and pay however you like — Instant Worker
+            never touches that money or takes a cut.
           </p>
         </section>
 
-        {/* ══ Worker listing / empty state ══ */}
-        {loading ? (
-          <p style={{ color: 'var(--text-tertiary)', textAlign: 'center', padding: '20px 0' }}>Loading…</p>
-        ) : hasWorkers ? (
-          <section style={{ paddingBottom: 48 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--text)', marginBottom: 18, textAlign: 'center' }}>
-              {skill}s available in {city}
-            </h2>
-            <div style={{ display: 'grid', gap: 16, gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
-              {workers.map(w => (
-                <Link key={w._id} to={`/worker/${w._id}`} className="il-card il-card-pad" style={{ textDecoration: 'none', display: 'block' }}>
-                  <p style={{ margin: 0, fontWeight: 700, color: 'var(--text)' }}>{w.name}</p>
-                  <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--text-secondary)' }}>
-                    {w.worker?.experience || 0} yrs experience · ₹{w.worker?.wagePerDay || '—'}/day
-                  </p>
-                  {w.worker?.rating?.average > 0 && (
-                    <p style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--text-tertiary)' }}>
-                      ⭐ {w.worker.rating.average.toFixed(1)} ({w.worker.rating.count})
-                    </p>
-                  )}
-                </Link>
-              ))}
-            </div>
-          </section>
-        ) : (
-          <section style={{ paddingBottom: 48 }}>
-            <div className="il-card il-card-pad" style={{ textAlign: 'center' }}>
-              <p style={{ margin: 0, color: 'var(--text-secondary)' }}>
-                We don't have {skillLower} workers listed in {city} yet — be the first.
-              </p>
-              <Link to="/register" className="il-btn il-btn-primary" style={{ marginTop: 16, textDecoration: 'none' }}>
-                Sign up as a worker
-              </Link>
-            </div>
-          </section>
-        )}
-
-        {/* ══ How it works ══ */}
-        <section style={{ paddingBottom: 48 }}>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--text)', marginBottom: 20, textAlign: 'center' }}>
-            How Instant Worker works
-          </h2>
-          <div style={{ display: 'grid', gap: 16, gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
-            {HOW_IT_WORKS.map(step => (
-              <div key={step.n} className="il-card il-card-pad">
-                <div style={{
-                  width: 32, height: 32, borderRadius: 16, background: 'var(--primary-light)',
-                  color: 'var(--primary-dark)', fontWeight: 800, display: 'flex', alignItems: 'center',
-                  justifyContent: 'center', marginBottom: 10,
-                }}>{step.n}</div>
-                <p style={{ margin: 0, fontWeight: 700, color: 'var(--text)' }}>{step.title}</p>
-                <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--text-secondary)' }}>{step.desc}</p>
+        {/* ══ Process — horizontal timeline, legitimately sequential ══ */}
+        <section style={{ padding: '48px 0', borderBottom: '1px solid var(--border)' }}>
+          <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--text)', marginBottom: 28 }}>How it works</h2>
+          <div style={{ display: 'flex', gap: 0 }} className="scl-steps">
+            {STEPS.map((s, i) => (
+              <div key={s.n} style={{ flex: 1, position: 'relative', paddingRight: 24 }}>
+                {i < STEPS.length - 1 && (
+                  <div style={{ position: 'absolute', top: 13, left: '60%', right: 0, height: 1, background: 'var(--border)' }} />
+                )}
+                <p style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 800, color: 'var(--primary-dark)' }}>{s.n}</p>
+                <p style={{ margin: 0, fontWeight: 700, color: 'var(--text)', fontSize: 15 }}>{s.title}</p>
+                <p style={{ margin: '4px 0 0', fontSize: 13.5, color: 'var(--text-secondary)' }}>{s.desc}</p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* ══ Why us ══ */}
-        <section style={{ paddingBottom: 48 }}>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--text)', marginBottom: 20, textAlign: 'center' }}>
-            Why choose Instant Worker
-          </h2>
-          <div style={{ display: 'grid', gap: 16, gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
-            {WHY_US.map(item => (
-              <div key={item.title} style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 28, marginBottom: 8 }}>{item.icon}</div>
-                <p style={{ margin: 0, fontWeight: 700, color: 'var(--text)', fontSize: 14 }}>{item.title}</p>
-                <p style={{ margin: '4px 0 0', fontSize: 12.5, color: 'var(--text-tertiary)' }}>{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ══ Promotional banner ══ */}
+        {/* ══ Credentials strip — one row, not a card grid ══ */}
         <section style={{
-          background: 'linear-gradient(120deg, #059669, #10B981)', borderRadius: 20,
-          padding: '32px 28px', marginBottom: 56, display: 'flex', alignItems: 'center',
-          justifyContent: 'space-between', flexWrap: 'wrap', gap: 20,
+          padding: '20px 0', borderBottom: '1px solid var(--border)',
+          display: 'flex', flexWrap: 'wrap', gap: '10px 32px', fontSize: 13.5, color: 'var(--text-secondary)', fontWeight: 600,
+        }}>
+          <span>ID-verified workers</span>
+          <span>Zero commission</span>
+          <span>Direct messaging</span>
+          <span>Live job tracking</span>
+        </section>
+
+        {/* ══ Worker recruitment banner — flat color, no gradient ══ */}
+        <section style={{
+          margin: '48px 0', background: 'var(--text)', borderRadius: 14,
+          padding: '28px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          flexWrap: 'wrap', gap: 18,
         }}>
           <div>
-            <p style={{ margin: 0, fontSize: 19, fontWeight: 800, color: '#fff' }}>
-              Are you a {skillLower} in {city}?
+            <p style={{ margin: 0, fontSize: 17, fontWeight: 800, color: '#fff' }}>
+              Work as a {skillLower} in {city}
             </p>
-            <p style={{ margin: '4px 0 0', fontSize: 13.5, color: 'rgba(255,255,255,.85)' }}>
-              Join free — get matched with real jobs near you, keep 100% of what you earn.
+            <p style={{ margin: '4px 0 0', fontSize: 13.5, color: 'rgba(255,255,255,.7)' }}>
+              Free to join. Keep everything you earn.
             </p>
           </div>
           <Link to="/register" style={{
-            background: '#fff', color: 'var(--primary-dark)', fontWeight: 800, fontSize: 14,
-            padding: '13px 26px', borderRadius: 999, textDecoration: 'none', flexShrink: 0,
+            background: '#fff', color: 'var(--text)', fontWeight: 800, fontSize: 14,
+            padding: '12px 22px', borderRadius: 8, textDecoration: 'none', flexShrink: 0,
           }}>
-            Join as a worker →
+            Sign up free
           </Link>
         </section>
       </div>
 
-      {/* ══ FOOTER ══ */}
-      <footer style={{ borderTop: '1px solid var(--border)', padding: '32px 20px', textAlign: 'center' }}>
-        <img src={LOGO_URL} alt="InstantWorker" style={{ height: 30, width: 'auto', margin: '0 auto 16px', display: 'block' }} />
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 20, flexWrap: 'wrap', marginBottom: 14 }}>
-          <a href={`https://wa.me/${SUPPORT.whatsapp}`} className="il-link" style={{ fontSize: 13 }}>WhatsApp us</a>
-          <a href={`mailto:${SUPPORT.email}`} className="il-link" style={{ fontSize: 13 }}>{SUPPORT.email}</a>
-          <Link to="/terms" className="il-link" style={{ fontSize: 13 }}>Terms</Link>
-          <Link to="/privacy" className="il-link" style={{ fontSize: 13 }}>Privacy</Link>
+      {/* ══ Footer ══ */}
+      <footer style={{ borderTop: '1px solid var(--border)', padding: '28px 24px' }}>
+        <div style={{
+          maxWidth: 1080, margin: '0 auto', display: 'flex', justifyContent: 'space-between',
+          alignItems: 'center', flexWrap: 'wrap', gap: 16,
+        }}>
+          <img src={LOGO_URL} alt="InstantWorker" style={{ height: 24, width: 'auto' }} />
+          <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+            <a href={`https://wa.me/${SUPPORT.whatsapp}`} style={{ fontSize: 13, color: 'var(--text-secondary)', textDecoration: 'none' }}>WhatsApp</a>
+            <a href={`mailto:${SUPPORT.email}`} style={{ fontSize: 13, color: 'var(--text-secondary)', textDecoration: 'none' }}>{SUPPORT.email}</a>
+            <Link to="/terms" style={{ fontSize: 13, color: 'var(--text-secondary)', textDecoration: 'none' }}>Terms</Link>
+            <Link to="/privacy" style={{ fontSize: 13, color: 'var(--text-secondary)', textDecoration: 'none' }}>Privacy</Link>
+          </div>
+          <p style={{ margin: 0, fontSize: 12.5, color: 'var(--text-tertiary)' }}>
+            © {new Date().getFullYear()} Instant Worker
+          </p>
         </div>
-        <p style={{ margin: 0, fontSize: 12, color: 'var(--text-tertiary)' }}>
-          © {new Date().getFullYear()} Instant Worker. All rights reserved.
-        </p>
       </footer>
+
+      <style>{`
+        @media (max-width: 760px) {
+          .scl-hero-grid { grid-template-columns: 1fr !important; }
+          .scl-steps { flex-direction: column !important; gap: 24px !important; }
+          .scl-steps > div { padding-right: 0 !important; }
+          .scl-steps > div > div { display: none !important; }
+        }
+      `}</style>
     </div>
   );
 }
