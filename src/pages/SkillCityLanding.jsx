@@ -30,6 +30,7 @@ export default function SkillCityLanding() {
   const skillLower = skill.toLowerCase();
 
   const [workers, setWorkers] = useState([]);
+  const [otherWorkers, setOtherWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [allSkills, setAllSkills] = useState([]);
   const [searchSkill, setSearchSkill] = useState(skill);
@@ -57,6 +58,16 @@ export default function SkillCityLanding() {
       .then(({ data }) => setWorkers(data.workers || []))
       .catch(() => setWorkers([]))
       .finally(() => setLoading(false));
+
+    // Other workers in the same city, different skills — cross-links to
+    // more profiles instead of a dead end if this specific skill's list
+    // is short, and gives Google more internal links to crawl from here.
+    axios.get('/api/workers/search', { params: { city } })
+      .then(({ data }) => {
+        const others = (data.workers || []).filter(w => w.worker?.skill !== skill).slice(0, 6);
+        setOtherWorkers(others);
+      })
+      .catch(() => setOtherWorkers([]));
   }, [skill, city]);
 
   return (
@@ -282,6 +293,75 @@ export default function SkillCityLanding() {
           <span>Direct messaging</span>
           <span>Live job tracking</span>
         </section>
+
+        {/* ══ FAQ — genuine, non-fabricated answers ══ */}
+        <section style={{ padding: '48px 0', borderBottom: '1px solid var(--border)', maxWidth: 680 }}>
+          <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--text)', marginBottom: 22 }}>
+            Common questions
+          </h2>
+          {[
+            {
+              q: `How much does a ${skillLower} cost in ${city}?`,
+              a: `Pricing isn't fixed by Instant Worker — you agree it directly with the worker based on the job. Since there's no commission taken out, the full amount goes to them.`,
+            },
+            {
+              q: 'Is it free to post a job?',
+              a: 'Yes. Posting a job costs nothing, and theres no charge for messaging or hiring a worker.',
+            },
+            {
+              q: 'How do I know a worker is actually verified?',
+              a: "Every worker's ID is checked before they can accept a job. A verified badge shows on their profile once that's confirmed.",
+            },
+            {
+              q: `Can I hire a ${skillLower} outside ${city} too?`,
+              a: 'Yes — search any city from the box at the top of this page, or browse workers platform-wide from the main site.',
+            },
+          ].map((item, i) => (
+            <div key={item.q} style={{ padding: '16px 0', borderTop: i === 0 ? '1px solid var(--border)' : 'none', borderBottom: '1px solid var(--border)' }}>
+              <p style={{ margin: 0, fontWeight: 700, color: 'var(--text)', fontSize: 14.5 }}>{item.q}</p>
+              <p style={{ margin: '6px 0 0', fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{item.a}</p>
+            </div>
+          ))}
+        </section>
+
+        {/* ══ Other workers in the same city, different skills ══ */}
+        {otherWorkers.length > 0 && (
+          <section style={{ padding: '48px 0', borderBottom: '1px solid var(--border)' }}>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--text)', marginBottom: 4 }}>
+              Other workers in {city}
+            </h2>
+            <p style={{ fontSize: 13.5, color: 'var(--text-tertiary)', marginBottom: 22 }}>
+              Need something else done while you're at it?
+            </p>
+            <div style={{ display: 'grid', gap: 0, gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
+              {otherWorkers.map(w => (
+                <Link
+                  key={w._id}
+                  to={`/worker/${w._id}`}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0',
+                    borderTop: '1px solid var(--border)', textDecoration: 'none',
+                  }}
+                >
+                  <div style={{
+                    width: 38, height: 38, borderRadius: '50%', background: 'var(--secondary-light)',
+                    color: 'var(--secondary-dark)', fontWeight: 800, fontSize: 14,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                  }}>
+                    {w.name?.charAt(0).toUpperCase()}
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <p style={{ margin: 0, fontWeight: 700, color: 'var(--text)', fontSize: 14 }}>{w.name}</p>
+                    <p style={{ margin: '2px 0 0', fontSize: 12.5, color: 'var(--text-secondary)' }}>{w.worker?.skill}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            <Link to="/workers" style={{ display: 'inline-block', marginTop: 18, fontSize: 13.5, fontWeight: 700, color: 'var(--primary-dark)', textDecoration: 'none' }}>
+              Browse all workers in {city} →
+            </Link>
+          </section>
+        )}
 
         {/* ══ Worker recruitment banner — flat color, no gradient ══ */}
         <section style={{
