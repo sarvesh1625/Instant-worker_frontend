@@ -32,6 +32,7 @@ import History from './pages/History';
 import Help from './pages/Help';
 import AdminSkills from './pages/admin/AdminSkills';
 import Subscription from './pages/Subscription';
+import SkillCityLanding from './pages/SkillCityLanding';
 
 
 // ── Admin pages ───────────────────────────────────────────────────────────────
@@ -81,6 +82,7 @@ export default function App() {
               <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
               <Route path="/terms"    element={<Terms />} />
               <Route path="/privacy"  element={<Privacy />} />
+              <Route path="/workers/:skill/:city" element={<SkillCityLanding />} />
 
               {/* ── Protected (regular worker/poster auth via AuthContext) ── */}
               <Route path="/dashboard"       element={<PrivateRoute><Dashboard /></PrivateRoute>} />
