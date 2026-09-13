@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/sitemap.xml", "destination": "https://instant-worker-backend-wk2q.onrender.com/api/sitemap.xml" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
