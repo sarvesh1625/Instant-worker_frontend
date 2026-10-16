@@ -5,6 +5,7 @@ import { useLang } from '../context/LangContext';
 import { useAuth } from '../context/AuthContext';
 import AppShell from '../components/AppShell';
 import RateWorkModal from '../components/RateWorkModal';
+import PaymentCodeModal from '../components/PaymentCodeModal';
 import WorkerLocationPanel from '../components/WorkerLocationPanel';
 import '../styles/theme.css';
 
@@ -24,6 +25,7 @@ export default function MyWork() {
   const [loading, setLoading]     = useState(true);
   const [myReviews, setMyReviews] = useState({});
   const [rateModal, setRateModal] = useState({ open: false, job: null });
+  const [codeJob, setCodeJob]     = useState(null);
 
   const load = async () => {
     try {
@@ -126,11 +128,24 @@ export default function MyWork() {
                           <i className="ti ti-phone" style={{ fontSize: 13 }} aria-hidden="true"></i>
                         </a>
                       )}
-                      <button onClick={() => navigate(`/chat/${job.postedBy?._id}`)} className="il-btn il-btn-sm" style={{ background: 'var(--info-bg)', color: '#0369A1', padding: '6px 10px' }}>
-                        <i className="ti ti-message-circle" style={{ fontSize: 13 }} aria-hidden="true"></i>
-                      </button>
+                      {!job.contactClosed && (
+                        <button onClick={() => navigate(`/chat/${job.postedBy?._id}`)} className="il-btn il-btn-sm" style={{ background: 'var(--info-bg)', color: '#0369A1', padding: '6px 10px' }}>
+                          <i className="ti ti-message-circle" style={{ fontSize: 13 }} aria-hidden="true"></i>
+                        </button>
+                      )}
                     </div>
                   </div>
+
+                  {ws === 'completed' && job.paymentStatus === 'pending' && (
+                    <button onClick={() => setCodeJob(job)} className="il-btn il-btn-primary il-btn-block" style={{ marginTop: 12, padding: 12 }}>
+                      <i className="ti ti-key" style={{ fontSize: 16 }} aria-hidden="true"></i> Show my payment code
+                    </button>
+                  )}
+                  {job.contactClosed && (
+                    <div style={{ marginTop: 10, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>
+                      This job is finished. Chat and call are closed.
+                    </div>
+                  )}
 
                   {ws === 'completed' && !alreadyRated && (
                     <button onClick={() => openRateModal(job)} style={{
@@ -157,6 +172,8 @@ export default function MyWork() {
 
       <RateWorkModal open={rateModal.open} job={rateModal.job} targetUser={rateModal.job?.postedBy}
         onClose={() => setRateModal({ open: false, job: null })} onSubmitted={() => handleRated(rateModal.job)} />
+
+      <PaymentCodeModal open={!!codeJob} mode="show" jobId={codeJob?._id} wage={codeJob?.wage} onClose={() => { setCodeJob(null); load(); }} />
 
       <style>{`
         @media (min-width: 900px) {

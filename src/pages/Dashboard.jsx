@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import AppShell from '../components/AppShell';
+import OngoingWork from '../components/OngoingWork';
 import '../styles/theme.css';
 
 // NOTE: labels/subs are now resolved via t() at render time inside the
@@ -177,6 +178,9 @@ export default function Dashboard() {
             </p>
           </div>
         </div>
+
+        {/* ── Ongoing work (poster + worker) ── */}
+        <OngoingWork />
 
         {/* ── Quick actions ── */}
         <p style={{ margin: '0 0 12px', fontSize: 13.5, fontWeight: 800, color: 'var(--text)' }}>{t('quickActions')}</p>

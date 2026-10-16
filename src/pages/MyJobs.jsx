@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AppShell from '../components/AppShell';
 import RateWorkModal from '../components/RateWorkModal';
+import PaymentCodeModal from '../components/PaymentCodeModal';
 import LiveTrackingMap from '../components/LiveTrackingMap';
 import '../styles/theme.css';
 
@@ -18,6 +19,7 @@ const getWorkStatus = (a) => a?.workStatus || 'not_started';
 export default function MyJobs() {
   const navigate = useNavigate();
   const [jobs, setJobs]               = useState([]);
+  const [codeModal, setCodeModal]     = useState(null);   // { jobId, workerId, name, wage }
   const [loading, setLoading]         = useState(true);
   const [actioning, setActioning]     = useState({});
   const [myReviews, setMyReviews]     = useState({});
@@ -78,12 +80,17 @@ export default function MyJobs() {
   };
 
   const handleCompleteWork = async (jobId, workerId) => {
-    if (!confirm('Mark this work as completed? The wage will be recorded in both wallets.')) return;
+    if (!confirm('Mark this work as completed? Next you pay the worker and enter the code from their app.')) return;
     const key = `complete-${jobId}-${workerId}`;
     setActioning(p => ({ ...p, [key]: true }));
     try {
-      await axios.patch(`/api/jobs/${jobId}/applicants/${workerId}/complete-work`);
+      const { data: done } = await axios.patch(`/api/jobs/${jobId}/applicants/${workerId}/complete-work`);
       await load();
+      if (done?.paymentPending) {
+        const jb = jobs.find(x => x._id === jobId);
+        const ap = jb?.applicants?.find(x => (x.worker?._id || x.worker) === workerId);
+        setCodeModal({ jobId, workerId, name: ap?.worker?.name, wage: jb?.wage });
+      }
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to complete work');
     } finally {
@@ -250,9 +257,11 @@ export default function MyJobs() {
                               <i className="ti ti-phone" style={{ fontSize: 14 }} aria-hidden="true"></i>
                             </a>
                           )}
-                          <button onClick={() => navigate(`/chat/${workerId}`)} className="il-btn il-btn-sm" style={{ background: 'var(--info-bg)', color: '#0369A1', padding: '7px 11px' }}>
-                            <i className="ti ti-message-circle" style={{ fontSize: 14 }} aria-hidden="true"></i>
-                          </button>
+                          {!a.contactClosed && (
+                            <button onClick={() => navigate(`/chat/${workerId}`)} className="il-btn il-btn-sm" style={{ background: 'var(--info-bg)', color: '#0369A1', padding: '7px 11px' }}>
+                              <i className="ti ti-message-circle" style={{ fontSize: 14 }} aria-hidden="true"></i>
+                            </button>
+                          )}
                           <button onClick={() => navigate(`/profile/${workerId}`)} className="il-btn il-btn-sm" style={{ background: 'var(--purple-bg)', color: 'var(--purple)', padding: '7px 11px' }}>
                             <i className="ti ti-user" style={{ fontSize: 14 }} aria-hidden="true"></i>
                           </button>
@@ -302,6 +311,19 @@ export default function MyJobs() {
                             ? <><span className="il-spinner"></span> Completing...</>
                             : <><i className="ti ti-circle-check" style={{ fontSize: 17 }} aria-hidden="true"></i> Mark Work as Completed</>}
                         </button>
+                      )}
+
+                      {ws === 'completed' && a.paymentStatus === 'pending' && (
+                        <button
+                          onClick={() => setCodeModal({ jobId: job._id, workerId, name: a.worker?.name, wage: job.wage })}
+                          className="il-btn il-btn-primary il-btn-block" style={{ padding: 13, marginBottom: 10 }}>
+                          <i className="ti ti-key" style={{ fontSize: 17 }} aria-hidden="true"></i> Enter payment code
+                        </button>
+                      )}
+                      {a.contactClosed && (
+                        <div style={{ fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center', marginBottom: 10 }}>
+                          This job is finished. Chat and call are closed.
+                        </div>
                       )}
 
                       {ws === 'completed' && !alreadyRated && (
@@ -427,6 +449,11 @@ export default function MyJobs() {
         targetUser={rateModal.worker}
         onClose={() => setRateModal({ open: false, job: null, worker: null })}
         onSubmitted={handleRated}
+      />
+      <PaymentCodeModal
+        open={!!codeModal} mode="enter" jobId={codeModal?.jobId} workerId={codeModal?.workerId}
+        otherName={codeModal?.name} wage={codeModal?.wage}
+        onClose={() => { setCodeModal(null); load(); }} onDone={load}
       />
     </AppShell>
   );

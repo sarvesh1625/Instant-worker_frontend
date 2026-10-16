@@ -3,7 +3,6 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { LangProvider } from './context/LangContext';
 import { SocketProvider } from './context/SocketContext';
 
-
 // ── Public pages ──────────────────────────────────────────────────────────────
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
@@ -31,8 +30,6 @@ import Wallet from './pages/Wallet';
 import History from './pages/History';
 import Help from './pages/Help';
 import AdminSkills from './pages/admin/AdminSkills';
-import Subscription from './pages/Subscription';
-import SkillCityLanding from './pages/SkillCityLanding';
 
 
 // ── Admin pages ───────────────────────────────────────────────────────────────
@@ -42,13 +39,8 @@ import AdminUsers from './pages/admin/AdminUsers';
 import AdminReports from './pages/admin/AdminReports';
 import AdminJobs from './pages/admin/AdminJobs';
 import AdminVerifications from './pages/admin/AdminVerifications';
-import AdminSettings from './pages/admin/AdminSettings';
-import AdminSubscriptions from './pages/admin/AdminSubscriptions';
-import AdminLeaderboard from './pages/admin/AdminLeaderboard';
-
-
-
-
+import AdminPayments from './pages/admin/AdminPayments';
+import SkillCityLanding from './pages/SkillCityLanding';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -84,7 +76,7 @@ export default function App() {
               <Route path="/privacy"  element={<Privacy />} />
               <Route path="/workers/:skill/:city" element={<SkillCityLanding />} />
 
-              {/* ── Protected (regular worker/poster auth via AuthContext) ── */}
+              {/* ── Protected ── */}
               <Route path="/dashboard"       element={<PrivateRoute><Dashboard /></PrivateRoute>} />
               <Route path="/jobs"            element={<PrivateRoute><BrowseJobs /></PrivateRoute>} />
               <Route path="/jobs/post"       element={<PrivateRoute><PostJob /></PrivateRoute>} />
@@ -105,14 +97,9 @@ export default function App() {
               <Route path="/reviews/:workerId"   element={<PrivateRoute><Reviews /></PrivateRoute>} />
               <Route path="/verification"    element={<PrivateRoute><Verification /></PrivateRoute>} />
               <Route path="/help" element={<PrivateRoute><Help /></PrivateRoute>} />
-              <Route path="/subscription" element={<PrivateRoute><Subscription /></PrivateRoute>} />
 
 
-              {/* ── Admin (separate adminToken auth, guarded internally by
-                   each page's own AdminAuthGuard wrapper — NOT PrivateRoute,
-                   which only checks the regular worker/poster AuthContext
-                   and would incorrectly bounce a logged-in admin to /login
-                   since their session lives in a different token entirely) ── */}
+              {/* ── Admin ── */}
               {/*
                 FIX: AdminLogin.jsx navigates to '/admin/dashboard' after a
                 successful login, and AdminLayout.jsx's sidebar nav item also
@@ -129,18 +116,8 @@ export default function App() {
               <Route path="/admin/reports"       element={<AdminReports />} />
               <Route path="/admin/jobs"          element={<AdminJobs />} />
               <Route path="/admin/verifications" element={<AdminVerifications />} />
-              <Route path="/admin/skills"        element={<AdminSkills />} />
-              <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
-              <Route path="/admin/leaderboard" element={<AdminLeaderboard />} />
-              {/* FIX: this was wrapped in <PrivateRoute>, which checks the
-                  regular AuthContext (worker/poster login) — an admin's
-                  session never sets that, so PrivateRoute saw "not logged
-                  in" and bounced straight to /login every time, even for a
-                  genuinely logged-in admin. AdminSettings.jsx already
-                  guards itself internally via <AdminAuthGuard>, same as
-                  every other admin page above — no router-level wrapper
-                  needed, and definitely not the wrong one. */}
-              <Route path="/admin/settings"      element={<AdminSettings />} />
+              <Route path="/admin/skills" element={<AdminSkills />} />
+              <Route path="/admin/payments" element={<AdminPayments />} />
               <Route path="*" element={<Navigate to="/" replace />} />
 
             </Routes>

@@ -2,11 +2,17 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useLang } from '../context/LangContext';
-import Msg91OtpWidget from '../components/Msg91OtpWidget';
 import '../styles/theme.css';
 
-const MSG91_WIDGET_ID  = import.meta.env.VITE_MSG91_WIDGET_ID;
-const MSG91_TOKEN_AUTH = import.meta.env.VITE_MSG91_TOKEN_AUTH;
+// ACTIVE FALLBACK — MSG91 widget's server-side verifyAccessToken call
+// fails with AuthenticationFailure for a still-undetermined reason (every
+// client-checkable cause ruled out: authkey matches, widget credentials
+// match, no domain/IP restriction — awaiting MSG91 support's answer).
+//
+// This uses the LEGACY custom-OTP flow instead (register-send-otp →
+// register) — the same one the mobile app already uses successfully.
+// Steps 1 and 2 are unchanged. Swap step 3 back to <Msg91OtpWidget> once
+// MSG91 support resolves the real issue.
 
 export default function Register() {
   const navigate = useNavigate();
@@ -41,11 +47,13 @@ export default function Register() {
   const [form, setForm] = useState({ name: '', phone: '', password: '', skill: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [widgetTrigger, setWidgetTrigger] = useState(0);
-  const [verifying, setVerifying] = useState(false);
 
-  // Skills come from the database (admin-managed) instead of a hardcoded
-  // array, so a skill the admin adds shows up here immediately.
+  const [otp, setOtp] = useState('');
+  const [devOtp, setDevOtp] = useState('');
+  const [otpLen, setOtpLen] = useState(4); // server tells us the real length (4 with the MSG91 widget, 6 otherwise)
+  const [resendIn, setResendIn] = useState(0);
+  const [sendingOtp, setSendingOtp] = useState(false);
+
   const [skills, setSkills] = useState([]);
   useEffect(() => {
     axios.get('/api/skills')
@@ -53,62 +61,74 @@ export default function Register() {
       .catch(() => setSkills(['Labour','Painter','Carpenter','Electrician','Mechanic','Farmer','Driver','Plumber','Welder','Other']));
   }, []);
 
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const timer = setTimeout(() => setResendIn(s => s - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendIn]);
+
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
   const selectRole = (r) => { setRole(r); setStep(2); };
 
-  const handleDetailsSubmit = (e) => {
+  const handleDetailsSubmit = async (e) => {
     e.preventDefault();
     setError('');
     if (!/^\d{10}$/.test(form.phone.trim())) {
       setError(t('validPhoneErr'));
       return;
     }
-    setStep(3);
-    setVerifying(true);
-    setWidgetTrigger(t2 => t2 + 1);
+    setSendingOtp(true);
+    try {
+      const { data } = await axios.post('/api/auth/register-send-otp', { phone: form.phone.trim() });
+      if (data.otpLength) setOtpLen(data.otpLength);
+      if (data.otp_dev) setDevOtp(data.otp_dev);
+      setOtp('');
+      setResendIn(30);
+      setStep(3);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Could not send OTP');
+    } finally {
+      setSendingOtp(false);
+    }
   };
 
-  const handleVerified = async (accessToken) => {
-    setLoading(true);
+  const handleResendOtp = async () => {
+    if (resendIn > 0) return;
     setError('');
     try {
-      const { data } = await axios.post('/api/auth/register-msg91', {
-        accessToken,
+      const { data } = await axios.post('/api/auth/register-send-otp', { phone: form.phone.trim() });
+      if (data.otpLength) setOtpLen(data.otpLength);
+      if (data.otp_dev) setDevOtp(data.otp_dev);
+      setOtp('');
+      setResendIn(30);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Could not resend OTP');
+    }
+  };
+
+  const handleVerifyAndRegister = async (e) => {
+    e.preventDefault();
+    if (otp.trim().length !== otpLen) { setError(`Enter the ${otpLen}-digit OTP`); return; }
+    setError('');
+    setLoading(true);
+    try {
+      const { data } = await axios.post('/api/auth/register', {
         name: form.name,
+        phone: form.phone.trim(),
         password: form.password,
         role,
         skill: role === 'worker' ? form.skill : undefined,
+        otp: otp.trim(),
       });
       localStorage.setItem('token', data.token);
       axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
       window.location.href = '/dashboard';
     } catch (err) {
       setError(err.response?.data?.message || t('couldNotComplete'));
-      setStep(2);
-      setVerifying(false);
     } finally {
       setLoading(false);
     }
   };
-
-  const handleWidgetError = (err) => {
-    setVerifying(false);
-    setError(err?.message || t('verifyFailedErr'));
-    setStep(2);
-  };
-
-  if (!MSG91_WIDGET_ID || !MSG91_TOKEN_AUTH) {
-    return (
-      <div className="il-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: 20 }}>
-        <div className="il-card il-card-pad" style={{ maxWidth: 420, textAlign: 'center' }}>
-          <i className="ti ti-alert-triangle" style={{ fontSize: 32, color: 'var(--danger)' }} aria-hidden="true"></i>
-          <p style={{ marginTop: 12, fontSize: 14, color: 'var(--text)' }}>
-            {t('registrationUnavailable')}
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', fontFamily: 'var(--font)', padding: 20, position: 'relative' }}>
@@ -118,14 +138,11 @@ export default function Register() {
       <div style={{ width: '100%', maxWidth: 420 }}>
 
         <button onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 26 }}>
-       <img
-  src="https://res.cloudinary.com/dxdjlyq72/image/upload/v1786430441/InstantWorker_Logo_pljqcg.png"
-  alt="InstantWorker"
-  style={{ height: 56, width: 'auto', display: 'block' }}
-/>
-          {/* <span style={{ fontSize: 19, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em' }}>
-            Instant<span style={{ color: '#059669' }}>Worker</span>
-          </span> */}
+          <img
+            src="https://res.cloudinary.com/dxdjlyq72/image/upload/v1786430441/InstantWorker_Logo_pljqcg.png"
+            alt="InstantWorker"
+            style={{ height: 56, width: 'auto', display: 'block' }}
+          />
         </button>
 
         {step === 1 && (
@@ -189,35 +206,72 @@ export default function Register() {
                   </select>
                 </div>
               )}
-              <button type="submit" className="il-btn il-btn-primary il-btn-block" style={{ marginTop: 8, padding: 14 }}>
-                {t('continueToVerification')} <i className="ti ti-arrow-right" style={{ fontSize: 17 }} aria-hidden="true"></i>
+              <button type="submit" disabled={sendingOtp} className="il-btn il-btn-primary il-btn-block" style={{ marginTop: 8, padding: 14 }}>
+                {sendingOtp
+                  ? <><span className="il-spinner"></span> Sending OTP...</>
+                  : <>{t('continueToVerification')} <i className="ti ti-arrow-right" style={{ fontSize: 17 }} aria-hidden="true"></i></>}
               </button>
             </form>
           </>
         )}
 
         {step === 3 && (
-          <div style={{ textAlign: 'center', padding: '40px 0' }}>
-            <span className="il-spinner" style={{ width: 28, height: 28, borderWidth: 3, borderTopColor: 'var(--primary)', borderColor: 'var(--primary-light)' }}></span>
-            <p style={{ marginTop: 16, fontSize: 14, color: 'var(--text-secondary)' }}>
-              {loading ? t('creatingAccount') : t('enterOtpInPopup')}
+          <>
+            <button onClick={() => setStep(2)} style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)', fontSize: 13, cursor: 'pointer', padding: 0, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 5 }}>
+              <i className="ti ti-arrow-left" aria-hidden="true"></i> {t('backBtn')}
+            </button>
+            <h1 style={{ margin: '0 0 6px', fontSize: 24, fontWeight: 800, color: 'var(--text)' }}>Verify your number</h1>
+            <p style={{ margin: '0 0 22px', fontSize: 14, color: 'var(--text-secondary)' }}>
+              Enter the {otpLen}-digit code sent to +91 {form.phone}
             </p>
+
+            {!!devOtp && (
+              <div style={{ background: '#FEFCE8', border: '1px solid #FDE68A', borderRadius: 12, padding: '11px 15px', marginBottom: 16 }}>
+                <p style={{ margin: 0, fontSize: 13, color: '#A16207', fontWeight: 700, textAlign: 'center' }}>
+                  Test mode — your OTP is: {devOtp}
+                </p>
+              </div>
+            )}
+
             {error && (
-              <div style={{ background: 'var(--danger-bg)', border: '1px solid #fecaca', borderRadius: 12, padding: '11px 15px', margin: '16px auto 0', maxWidth: 340 }}>
+              <div style={{ background: 'var(--danger-bg)', border: '1px solid #fecaca', borderRadius: 12, padding: '11px 15px', marginBottom: 16 }}>
                 <p style={{ margin: 0, fontSize: 13, color: 'var(--danger)' }}>{error}</p>
               </div>
             )}
-            {verifying && (
-              <Msg91OtpWidget
-                widgetId={MSG91_WIDGET_ID}
-                tokenAuth={MSG91_TOKEN_AUTH}
-                identifier={`91${form.phone.trim()}`}
-                trigger={widgetTrigger}
-                onVerified={handleVerified}
-                onError={handleWidgetError}
-              />
-            )}
-          </div>
+
+            <form onSubmit={handleVerifyAndRegister}>
+              <div className="il-field">
+                <input
+                  className="il-input"
+                  value={otp}
+                  onChange={e => setOtp(e.target.value.replace(/[^0-9]/g, '').slice(0, otpLen))}
+                  placeholder="000000"
+                  inputMode="numeric"
+                  maxLength={otpLen}
+                  autoFocus
+                  style={{ textAlign: 'center', fontSize: 24, fontWeight: 800, letterSpacing: 8, padding: '16px 0' }}
+                />
+              </div>
+
+              <button type="submit" disabled={loading} className="il-btn il-btn-primary il-btn-block" style={{ marginTop: 8, padding: 14 }}>
+                {loading
+                  ? <><span className="il-spinner"></span> {t('creatingAccount')}</>
+                  : <>Verify & Create Account</>}
+              </button>
+            </form>
+
+            <button
+              onClick={handleResendOtp}
+              disabled={resendIn > 0}
+              style={{
+                background: 'none', border: 'none', cursor: resendIn > 0 ? 'default' : 'pointer',
+                color: resendIn > 0 ? 'var(--text-tertiary)' : 'var(--primary-dark)',
+                fontWeight: 700, fontSize: 13, width: '100%', textAlign: 'center', marginTop: 16, padding: 8,
+              }}
+            >
+              {resendIn > 0 ? `Resend OTP in ${resendIn}s` : 'Resend OTP'}
+            </button>
+          </>
         )}
 
         {step !== 3 && (
