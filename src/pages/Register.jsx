@@ -2,17 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useLang } from '../context/LangContext';
+import { sendOtp as msgSend, verifyOtp as msgVerify, OTP_LENGTH } from '../utils/msg91';
 import '../styles/theme.css';
 
-// ACTIVE FALLBACK — MSG91 widget's server-side verifyAccessToken call
-// fails with AuthenticationFailure for a still-undetermined reason (every
-// client-checkable cause ruled out: authkey matches, widget credentials
-// match, no domain/IP restriction — awaiting MSG91 support's answer).
-//
-// This uses the LEGACY custom-OTP flow instead (register-send-otp →
-// register) — the same one the mobile app already uses successfully.
-// Steps 1 and 2 are unchanged. Swap step 3 back to <Msg91OtpWidget> once
-// MSG91 support resolves the real issue.
+// OTP: the browser asks MSG91 to send/verify the code directly (utils/msg91.js); our server then confirms
+// the verified token and creates the account (/api/auth/register-msg91).
 
 export default function Register() {
   const navigate = useNavigate();
@@ -50,7 +44,8 @@ export default function Register() {
 
   const [otp, setOtp] = useState('');
   const [devOtp, setDevOtp] = useState('');
-  const [otpLen, setOtpLen] = useState(4); // server tells us the real length (4 with the MSG91 widget, 6 otherwise)
+  const [otpLen] = useState(OTP_LENGTH);
+  const [reqId, setReqId] = useState('');
   const [resendIn, setResendIn] = useState(0);
   const [sendingOtp, setSendingOtp] = useState(false);
 
@@ -79,14 +74,12 @@ export default function Register() {
     }
     setSendingOtp(true);
     try {
-      const { data } = await axios.post('/api/auth/register-send-otp', { phone: form.phone.trim() });
-      if (data.otpLength) setOtpLen(data.otpLength);
-      if (data.otp_dev) setDevOtp(data.otp_dev);
+      setReqId(await msgSend(form.phone.trim()));
       setOtp('');
       setResendIn(30);
       setStep(3);
     } catch (err) {
-      setError(err.response?.data?.message || 'Could not send OTP');
+      setError(err.response?.data?.message || err.message || 'Could not send OTP');
     } finally {
       setSendingOtp(false);
     }
@@ -96,13 +89,11 @@ export default function Register() {
     if (resendIn > 0) return;
     setError('');
     try {
-      const { data } = await axios.post('/api/auth/register-send-otp', { phone: form.phone.trim() });
-      if (data.otpLength) setOtpLen(data.otpLength);
-      if (data.otp_dev) setDevOtp(data.otp_dev);
+      setReqId(await msgSend(form.phone.trim()));
       setOtp('');
       setResendIn(30);
     } catch (err) {
-      setError(err.response?.data?.message || 'Could not resend OTP');
+      setError(err.response?.data?.message || err.message || 'Could not resend OTP');
     }
   };
 
@@ -112,19 +103,19 @@ export default function Register() {
     setError('');
     setLoading(true);
     try {
-      const { data } = await axios.post('/api/auth/register', {
+      const accessToken = await msgVerify(reqId, otp.trim());
+      const { data } = await axios.post('/api/auth/register-msg91', {
         name: form.name,
-        phone: form.phone.trim(),
         password: form.password,
         role,
         skill: role === 'worker' ? form.skill : undefined,
-        otp: otp.trim(),
+        accessToken,
       });
       localStorage.setItem('token', data.token);
       axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
       window.location.href = '/dashboard';
     } catch (err) {
-      setError(err.response?.data?.message || t('couldNotComplete'));
+      setError(err.response?.data?.message || err.message || t('couldNotComplete'));
     } finally {
       setLoading(false);
     }
