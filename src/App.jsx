@@ -41,6 +41,9 @@ import AdminReports from './pages/admin/AdminReports';
 import AdminJobs from './pages/admin/AdminJobs';
 import AdminVerifications from './pages/admin/AdminVerifications';
 import AdminPayments from './pages/admin/AdminPayments';
+import AdminSettings from './pages/admin/AdminSettings';
+import AdminSubscriptions from './pages/admin/AdminSubscriptions';
+import AdminLeaderboard from './pages/admin/AdminLeaderboard';
 import SkillCityLanding from './pages/SkillCityLanding';
 
 function PrivateRoute({ children }) {
@@ -119,8 +122,11 @@ export default function App() {
               <Route path="/admin/verifications" element={<AdminVerifications />} />
               <Route path="/admin/skills" element={<AdminSkills />} />
               <Route path="/admin/payments" element={<AdminPayments />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
               <Route path="/admin/training" element={<AdminTraining />} />
+              <Route path="/admin/settings"      element={<AdminSettings />} />
+              <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
+              <Route path="/admin/leaderboard"   element={<AdminLeaderboard />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
 
             </Routes>
           </BrowserRouter>
