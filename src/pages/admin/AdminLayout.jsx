@@ -40,6 +40,7 @@ const NAV_ITEMS = [
   { icon: 'ti-crown', label: 'Subscriptions', path: '/admin/subscriptions' },
   { icon: 'ti-cash',  label: 'Payments',      path: '/admin/payments' },
   { icon: 'ti-trophy', label: 'Top Workers', path: '/admin/leaderboard' },
+  { icon: 'ti-video', label: 'Training', path: '/admin/training' },
 ];
 
 const BOTTOM_ITEMS = [

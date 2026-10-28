@@ -30,6 +30,7 @@ import Wallet from './pages/Wallet';
 import History from './pages/History';
 import Help from './pages/Help';
 import AdminSkills from './pages/admin/AdminSkills';
+import AdminTraining from './pages/admin/AdminTraining';
 
 
 // ── Admin pages ───────────────────────────────────────────────────────────────
@@ -119,6 +120,7 @@ export default function App() {
               <Route path="/admin/skills" element={<AdminSkills />} />
               <Route path="/admin/payments" element={<AdminPayments />} />
               <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="/admin/training" element={<AdminTraining />} />
 
             </Routes>
           </BrowserRouter>
