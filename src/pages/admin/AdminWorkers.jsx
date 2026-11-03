@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AdminLayout, { AdminAuthGuard, adminAxios } from './AdminLayout';
 import { T, inputStyle } from './adminTheme';
 import { Title, Card, Chip, Empty, Pager, fmt } from './adminUi';
 
 function Content() {
+  const navigate = useNavigate();
   const [f, setF] = useState({ q: '', city: '', area: '', skill: '', online: '' });
   const [page, setPage] = useState(1);
   const [d, setD] = useState({ workers: [], onlineAreas: [], total: 0, pages: 1 });
@@ -25,7 +27,7 @@ function Content() {
 
   return (
     <div>
-      <Title title="Workers" sub="Find workers by city, area and skill. “Online” = available and location known." />
+      <Title title="Workers" sub="Find workers by city, area and skill. Tap a worker to open the full profile. “Online” = available and location known." />
 
       <form onSubmit={search} style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
         <input placeholder="Name or phone" value={f.q} onChange={set('q')} style={{ ...inputStyle, width: 170 }} />
@@ -55,7 +57,7 @@ function Content() {
       <p style={{ color: T.textTertiary, fontSize: 12.5 }}>{loading ? 'Loading...' : `${d.total} workers`}</p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {d.workers.map(w => (
-          <Card key={w._id} style={{ padding: 14 }}>
+          <Card key={w._id} style={{ padding: 14, cursor: 'pointer' }}><div onClick={() => navigate(`/admin/users/${w._id}`)}>
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
               <div>
                 <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: T.text }}>{w.name} <span style={{ color: T.textTertiary, fontWeight: 400 }}>· {w.phone}</span></p>
@@ -69,7 +71,7 @@ function Content() {
                 {w.accountStatus !== 'active' && <Chip color="#F87171" bg={T.dangerBg}>{w.accountStatus}</Chip>}
               </div>
             </div>
-          </Card>
+          </div></Card>
         ))}
         {!loading && d.workers.length === 0 && <Empty>No workers match</Empty>}
       </div>

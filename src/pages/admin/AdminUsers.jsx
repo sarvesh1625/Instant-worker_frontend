@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AdminLayout, { AdminAuthGuard, adminAxios } from './AdminLayout';
 import { T, ROLE_COLOR, STATUS_COLOR, inputStyle, labelStyle } from './adminTheme';
 
 const CITIES = ['Hyderabad', 'Visakhapatnam', 'Vijayawada', 'Warangal', 'Tirupati', 'Bengaluru', 'Chennai', 'Mumbai', 'Delhi', 'Pune'];
 
 function UsersContent() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState('');
@@ -426,6 +428,15 @@ function UsersContent() {
                         </div>
                       ))}
                     </div>
+
+                    <button onClick={() => navigate(`/admin/users/${selectedUser.user._id}`)} style={{
+                      width: '100%', padding: 13, marginBottom: 12, borderRadius: T.radiusSm, border: 'none',
+                      background: T.accent, color: '#fff', fontSize: 13.5, fontWeight: 800, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: T.font,
+                    }}>
+                      <i className="ti ti-id" style={{ fontSize: 17 }} aria-hidden="true"></i>
+                      Open full profile (jobs, money, reviews, logins, ID)
+                    </button>
 
                     <div style={{ marginBottom: 22 }}>
                       <button onClick={loadConversations} style={{

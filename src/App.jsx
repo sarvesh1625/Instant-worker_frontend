@@ -46,6 +46,7 @@ import AdminSettings from './pages/admin/AdminSettings';
 import AdminSubscriptions from './pages/admin/AdminSubscriptions';
 import AdminLeaderboard from './pages/admin/AdminLeaderboard';
 import AdminWorkers from './pages/admin/AdminWorkers';
+import AdminUserDetail from './pages/admin/AdminUserDetail';
 import AdminJobDetail from './pages/admin/AdminJobDetail';
 import AdminActions from './pages/admin/AdminActions';
 import AdminDeletions from './pages/admin/AdminDeletions';
@@ -126,6 +127,7 @@ export default function App() {
               <Route path="/admin"               element={<AdminDashboard />} />
               <Route path="/admin/dashboard"     element={<AdminDashboard />} />
               <Route path="/admin/users"         element={<AdminUsers />} />
+              <Route path="/admin/users/:id"     element={<AdminUserDetail />} />
               <Route path="/admin/reports"       element={<AdminReports />} />
               <Route path="/admin/jobs"          element={<AdminJobs />} />
               <Route path="/admin/verifications" element={<AdminVerifications />} />

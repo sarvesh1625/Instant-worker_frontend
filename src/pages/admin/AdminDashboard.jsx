@@ -81,7 +81,7 @@ function Content() {
       <Title title="Dashboard" sub="What needs you today, and what is happening now" />
 
       <h3 style={{ color: T.text, fontSize: 14, margin: '0 0 10px' }}>Needs attention</h3>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(230px,1fr))', gap: 10, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,230px),1fr))', gap: 10, marginBottom: 24 }}>
         <Attn navigate={navigate} hot label="Payments pending over 24 hours" n={a.payments24} to="/admin/payments" />
         <Attn navigate={navigate} label="All pending payments" n={a.paymentsAll} to="/admin/payments" />
         <Attn navigate={navigate} label="ID verifications waiting" n={a.verifPending} to="/admin/verifications" />
@@ -91,15 +91,39 @@ function Content() {
       </div>
 
       <h3 style={{ color: T.text, fontSize: 14, margin: '0 0 10px' }}>People</h3>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 12, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,170px),1fr))', gap: 12, marginBottom: 24 }}>
         <Stat icon="ti-hammer" color={T.cyan} bg={T.cyanBg} label="Workers" value={u.totalWorkers} />
         <Stat icon="ti-user-search" color={T.purple} bg={T.purpleBg} label="Posters" value={u.totalPosters} />
         <Stat icon="ti-circle-check" color={T.success} bg={T.successBg} label="Workers online now" value={u.onlineNow} sub="available + location known" />
         <Stat icon="ti-user-plus" color={T.accent} bg={T.accentBg} label="New today" value={u.newToday} sub={`${u.new7} in 7 days`} />
       </div>
 
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 0 10px' }}>
+        <h3 style={{ color: T.text, fontSize: 14, margin: 0 }}>Workers</h3>
+        <button onClick={() => navigate('/admin/workers')} style={{ background: 'none', border: 'none', color: T.accent, fontSize: 12.5, fontWeight: 700, cursor: 'pointer', fontFamily: T.font }}>See all workers ›</button>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 12, marginBottom: 14 }}>
+        <Stat icon="ti-circle-check" color={T.success} bg={T.successBg} label="Online now" value={d.workers.online} />
+        <Stat icon="ti-moon" color={T.textSecondary} bg="rgba(148,163,184,.14)" label="Offline" value={d.workers.offline} />
+        <Stat icon="ti-tools" color={T.warning} bg={T.warningBg} label="Have a skill set" value={d.workers.withSkill} sub={`${d.workers.total - d.workers.withSkill} without`} />
+        <Stat icon="ti-map-pin" color={T.cyan} bg={T.cyanBg} label="Location known" value={d.workers.withLocation} sub={`${d.workers.total - d.workers.withLocation} without`} />
+        <Stat icon="ti-shield-check" color={T.accent} bg={T.accentBg} label="ID verified" value={d.workers.verified} />
+      </div>
+      <Card style={{ marginBottom: 24 }}>
+        <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 700, color: T.text }}>Online right now</p>
+        {d.workers.recentOnline.length === 0 && <Empty>No worker is online</Empty>}
+        {d.workers.recentOnline.map(w => (
+          <div key={w._id} onClick={() => navigate(`/admin/users/${w._id}`)} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, padding: '9px 0', borderBottom: `1px solid ${T.border}`, cursor: 'pointer', flexWrap: 'wrap' }}>
+            <span style={{ color: T.text, fontSize: 13.5, fontWeight: 600 }}>{w.name} <span style={{ color: T.textTertiary, fontWeight: 400 }}>· {w.phone}</span></span>
+            <span style={{ color: T.textSecondary, fontSize: 12.5 }}>
+              {(w.worker && (w.worker.skills && w.worker.skills.length ? w.worker.skills.join(', ') : w.worker.skill)) || 'No skill'} · {[w.area, w.city].filter(Boolean).join(', ') || 'No place'}
+            </span>
+          </div>
+        ))}
+      </Card>
+
       <h3 style={{ color: T.text, fontSize: 14, margin: '0 0 10px' }}>Jobs</h3>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 12, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,170px),1fr))', gap: 12, marginBottom: 24 }}>
         <Stat icon="ti-door-enter" color={T.success} bg={T.successBg} label="Open" value={j.open} />
         <Stat icon="ti-player-play" color={T.warning} bg={T.warningBg} label="In progress" value={j.inProgress} />
         <Stat icon="ti-calendar-plus" color={T.accent} bg={T.accentBg} label="Posted today" value={j.postedToday} />
@@ -107,14 +131,14 @@ function Content() {
 
       <h3 style={{ color: T.text, fontSize: 14, margin: '0 0 4px' }}>Logins today</h3>
       <p style={{ margin: '0 0 10px', fontSize: 11.5, color: T.textTertiary }}>Counted from the day the activity log was deployed.</p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 12, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,170px),1fr))', gap: 12, marginBottom: 24 }}>
         <Stat icon="ti-login" color={T.success} bg={T.successBg} label="Successful logins" value={au.loginsToday} />
         <Stat icon="ti-alert-triangle" color={T.danger} bg={T.dangerBg} label="Failed logins" value={au.failedToday} />
         <Stat icon="ti-key" color={T.warning} bg={T.warningBg} label="Forgot password" value={au.forgotToday} />
         <Stat icon="ti-user-check" color={T.accent} bg={T.accentBg} label="Registrations" value={au.registeredToday} />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 14, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,280px),1fr))', gap: 14, marginBottom: 24 }}>
         <Card><h3 style={{ color: T.text, fontSize: 14, margin: '0 0 12px' }}>Online workers by city</h3><Bars rows={d.onlineByCity} label="city" value="n" /></Card>
         <Card><h3 style={{ color: T.text, fontSize: 14, margin: '0 0 12px' }}>Online workers by skill</h3><Bars rows={d.onlineBySkill} label="skill" value="n" /></Card>
         <Card>
