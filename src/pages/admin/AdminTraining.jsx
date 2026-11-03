@@ -25,7 +25,7 @@ function TrainingContent() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy]       = useState('');
   const [progress, setProgress] = useState(0);
-  const [form, setForm] = useState({ title: '', audience: 'worker', order: 0, url: '', requireExisting: false });
+  const [form, setForm] = useState({ title: '', audience: 'worker', order: 0, url: '', requireExisting: false, skippable: true });
   const [file, setFile] = useState(null);
 
   const load = useCallback(async () => {
@@ -47,6 +47,7 @@ function TrainingContent() {
     fd.append('audience', form.audience);
     fd.append('order', String(form.order || 0));
     fd.append('requireExisting', String(form.requireExisting));
+    fd.append('skippable', String(form.skippable));
     if (file) fd.append('video', file); else fd.append('url', form.url.trim());
     setBusy('upload'); setProgress(0);
     try {
@@ -54,7 +55,7 @@ function TrainingContent() {
         onUploadProgress: (p) => setProgress(p.total ? Math.round((p.loaded / p.total) * 100) : 0),
         timeout: 0,
       });
-      setForm({ title: '', audience: form.audience, order: 0, url: '', requireExisting: false });
+      setForm({ title: '', audience: form.audience, order: 0, url: '', requireExisting: false, skippable: form.skippable });
       setFile(null);
       document.getElementById('training-file') && (document.getElementById('training-file').value = '');
       await load();
@@ -135,6 +136,14 @@ function TrainingContent() {
           </label>
         </div>
 
+        <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: 14, marginTop: 14, borderRadius: T.radiusSm, border: `1px solid ${form.skippable ? T.border : T.accent}`, background: form.skippable ? 'transparent' : T.accentBg, cursor: 'pointer' }}>
+          <input type="checkbox" checked={!form.skippable} onChange={e => setForm(f => ({ ...f, skippable: !e.target.checked }))} style={{ marginTop: 3, accentColor: T.accent, width: 16, height: 16 }} />
+          <span style={{ fontSize: 13, color: T.textSecondary, lineHeight: 1.5 }}>
+            <b style={{ color: T.text }}>Must watch (no skip)</b><br />
+            On: no Skip button, the person must watch it to the end. Off: they can skip it.
+          </span>
+        </label>
+
         <div style={{ marginTop: 22, display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
           <button type="submit" disabled={busy === 'upload'} style={{ ...btn(T.accent, '#fff'), padding: '11px 22px', fontSize: 13.5, borderRadius: T.radiusSm }}>
             {busy === 'upload' ? `Uploading… ${progress}%` : 'Add video'}
@@ -158,12 +167,13 @@ function TrainingContent() {
                     <div>
                       <p style={{ margin: 0, fontWeight: 800, color: T.text }}>#{v.order} · {v.title}</p>
                       <p style={{ margin: '4px 0 0', fontSize: 12, color: T.textTertiary }}>
-                        {v.active ? 'Required' : 'Switched off'} · watched by {v.watchedBy} · {v.requireExisting ? 'everyone' : 'new sign-ups only'} · added {new Date(v.createdAt).toLocaleDateString()}
+                        {v.active ? 'Required' : 'Switched off'} · {v.skippable === false ? 'must watch (no skip)' : 'can skip'} · watched by {v.watchedBy} · {v.requireExisting ? 'everyone' : 'new sign-ups only'} · added {new Date(v.createdAt).toLocaleDateString()}
                       </p>
                       <a href={v.url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: T.accent, fontWeight: 700 }}>Preview</a>
                     </div>
                     <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', flexWrap: 'wrap' }}>
                       <button disabled={busy === v._id} onClick={() => patch(v, { active: !v.active })} style={btn('transparent', T.textSecondary, `1px solid ${T.border}`)}>{v.active ? 'Switch off' : 'Switch on'}</button>
+                      <button disabled={busy === v._id} onClick={() => patch(v, { skippable: v.skippable === false })} style={btn('transparent', T.textSecondary, `1px solid ${T.border}`)}>{v.skippable === false ? 'Allow skip' : 'Make non-skippable'}</button>
                       <button disabled={busy === v._id} onClick={() => patch(v, { requireExisting: !v.requireExisting })} style={btn('transparent', T.textSecondary, `1px solid ${T.border}`)}>{v.requireExisting ? 'New sign-ups only' : 'Require everyone'}</button>
                       <button disabled={busy === v._id} onClick={() => remove(v)} style={btn('transparent', T.danger, `1px solid ${T.danger}`)}>Delete</button>
                     </div>

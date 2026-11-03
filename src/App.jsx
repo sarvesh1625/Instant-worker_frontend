@@ -29,6 +29,7 @@ import Verification from './pages/Verification';
 import Wallet from './pages/Wallet';
 import History from './pages/History';
 import Help from './pages/Help';
+import DeleteAccount from './pages/DeleteAccount';
 import AdminSkills from './pages/admin/AdminSkills';
 import AdminTraining from './pages/admin/AdminTraining';
 
@@ -108,6 +109,7 @@ export default function App() {
               <Route path="/reviews/:workerId"   element={<PrivateRoute><Reviews /></PrivateRoute>} />
               <Route path="/verification"    element={<PrivateRoute><Verification /></PrivateRoute>} />
               <Route path="/help" element={<PrivateRoute><Help /></PrivateRoute>} />
+              <Route path="/delete-account" element={<PrivateRoute><DeleteAccount /></PrivateRoute>} />
 
 
               {/* ── Admin ── */}

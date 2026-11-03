@@ -219,6 +219,10 @@ export default function AppShell({ children }) {
         </div>
 
         <hr className="iw-side-divider" />
+        <button className="iw-side-item danger" onClick={() => navigate('/delete-account')}>
+          <i className="ti ti-trash" aria-hidden="true"></i>
+          Delete account
+        </button>
         <button className="iw-side-item danger" onClick={handleLogout}>
           <i className="ti ti-logout" aria-hidden="true"></i>
           {t('logout')}
@@ -249,6 +253,14 @@ export default function AppShell({ children }) {
               background: '#EF4444', border: '2px solid var(--surface)',
             }}></span>
           )}
+        </button>
+
+        <button onClick={() => navigate('/delete-account')} title="Delete account" style={{
+          background: 'var(--danger-bg)', border: '1px solid #fecaca', borderRadius: 10,
+          width: 36, height: 36, cursor: 'pointer', color: 'var(--danger)', fontSize: 17,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+        }}>
+          <i className="ti ti-trash" aria-hidden="true"></i>
         </button>
 
         <button onClick={handleLogout} title={t('logout')} style={{
