@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
+import TermsGate from './TermsGate';
 import '../styles/theme.css';
 
 const LANGS = [
@@ -158,6 +159,7 @@ export default function AppShell({ children }) {
 
   return (
     <div className="iw-app">
+      <TermsGate />
 
       {/* ══ Sidebar (desktop) ══ */}
       <aside className="iw-sidebar">
