@@ -3,7 +3,20 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useLang } from '../context/LangContext';
 import { sendOtp as msgSend, verifyOtp as msgVerify, OTP_LENGTH } from '../utils/msg91';
+import { LEGAL } from '../legal/legalConfig';
 import '../styles/theme.css';
+
+// Consent line (same wording as the app) and its error message.
+const AGREE = {
+  en: 'I agree to the Terms & Conditions and Privacy Policy',
+  hi: 'मैं नियम व शर्तें और गोपनीयता नीति से सहमत हूं',
+  te: 'నేను నిబంధనలు & గోప్యతా విధానానికి అంగీకరిస్తున్నాను',
+};
+const AGREE_ERR = {
+  en: 'Please accept the Terms & Conditions to continue',
+  hi: 'जारी रखने के लिए कृपया नियम व शर्तें स्वीकार करें',
+  te: 'కొనసాగించడానికి దయచేసి నిబంధనలను అంగీకరించండి',
+};
 
 // OTP: the browser asks MSG91 to send/verify the code directly (utils/msg91.js); our server then confirms
 // the verified token and creates the account (/api/auth/register-msg91).
@@ -48,6 +61,7 @@ export default function Register() {
   const [reqId, setReqId] = useState('');
   const [resendIn, setResendIn] = useState(0);
   const [sendingOtp, setSendingOtp] = useState(false);
+  const [agree, setAgree] = useState(false);
 
   const [skills, setSkills] = useState([]);
   useEffect(() => {
@@ -72,6 +86,7 @@ export default function Register() {
       setError(t('validPhoneErr'));
       return;
     }
+    if (!agree) { setError(AGREE_ERR[lang] || AGREE_ERR.en); return; }
     setSendingOtp(true);
     try {
       setReqId(await msgSend(form.phone.trim()));
@@ -113,6 +128,8 @@ export default function Register() {
       });
       localStorage.setItem('token', data.token);
       axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+      // Record that this user accepted the Terms and Privacy Policy. Never blocks sign-up.
+      try { await axios.post('/api/legal/accept', { version: LEGAL.version, source: 'web' }); } catch {}
       window.location.href = '/dashboard';
     } catch (err) {
       setError(err.response?.data?.message || err.message || t('couldNotComplete'));
@@ -197,6 +214,15 @@ export default function Register() {
                   </select>
                 </div>
               )}
+              <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', margin: '6px 0 4px', cursor: 'pointer' }}>
+                <input type="checkbox" checked={agree} onChange={e => setAgree(e.target.checked)} style={{ marginTop: 3, width: 16, height: 16 }} />
+                <span style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{AGREE[lang] || AGREE.en}</span>
+              </label>
+              <p style={{ margin: '0 0 6px 26px', fontSize: 12.5 }}>
+                <a href="/terms" target="_blank" rel="noopener noreferrer" className="il-link">{t('termsConditions')}</a>
+                {' · '}
+                <a href="/privacy" target="_blank" rel="noopener noreferrer" className="il-link">{t('privacyPolicy')}</a>
+              </p>
               <button type="submit" disabled={sendingOtp} className="il-btn il-btn-primary il-btn-block" style={{ marginTop: 8, padding: 14 }}>
                 {sendingOtp
                   ? <><span className="il-spinner"></span> Sending OTP...</>
