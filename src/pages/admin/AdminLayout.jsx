@@ -40,7 +40,13 @@ const NAV_ITEMS = [
   { icon: 'ti-crown', label: 'Subscriptions', path: '/admin/subscriptions' },
   { icon: 'ti-cash',  label: 'Payments',      path: '/admin/payments' },
   { icon: 'ti-trophy', label: 'Top Workers', path: '/admin/leaderboard' },
-  { icon: 'ti-video', label: 'Training', path: '/admin/training' },
+  { icon: 'ti-map-pin',        label: 'Workers',    path: '/admin/workers' },
+  { icon: 'ti-video',          label: 'Training videos', path: '/admin/training' },
+  { icon: 'ti-school',         label: 'Training progress', path: '/admin/training-progress' },
+  { icon: 'ti-user-x',         label: 'Deletions',  path: '/admin/deletions' },
+  { icon: 'ti-lifebuoy',       label: 'Support',    path: '/admin/support' },
+  { icon: 'ti-activity',       label: 'Activity',   path: '/admin/activity' },
+  { icon: 'ti-history',        label: 'Action log', path: '/admin/actions' },
 ];
 
 const BOTTOM_ITEMS = [

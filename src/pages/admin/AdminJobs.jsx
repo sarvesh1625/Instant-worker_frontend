@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AdminLayout, { AdminAuthGuard, adminAxios } from './AdminLayout';
 import { T, STATUS_COLOR, inputStyle } from './adminTheme';
 
 function JobsContent() {
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState('');
@@ -41,6 +43,7 @@ function JobsContent() {
         <select value={status} onChange={e => setStatus(e.target.value)} style={{ ...inputStyle, width: 'auto', minWidth: 140, cursor: 'pointer' }}>
           <option value="">All status</option>
           <option value="open">Open</option>
+          <option value="in_progress">In progress</option>
           <option value="closed">Closed</option>
           <option value="completed">Completed</option>
         </select>
@@ -79,6 +82,7 @@ function JobsContent() {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, flexShrink: 0 }}>
                   <span style={{ background: sc.bg, color: sc.color, fontSize: 10.5, fontWeight: 700, padding: '4px 11px', borderRadius: 999, textTransform: 'capitalize' }}>{job.status}</span>
+                  <button onClick={() => navigate(`/admin/jobs/${job._id}`)} style={{ background: 'none', border: 'none', color: T.accent, fontSize: 12, cursor: 'pointer', fontFamily: T.font, fontWeight: 700 }}>View details</button>
                   <button onClick={() => handleDelete(job._id)} style={{ background: 'none', border: 'none', color: '#F87171', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontFamily: T.font, fontWeight: 600 }}>
                     <i className="ti ti-trash" style={{ fontSize: 14 }} aria-hidden="true"></i> Remove
                   </button>

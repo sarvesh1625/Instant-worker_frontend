@@ -44,6 +44,13 @@ import AdminPayments from './pages/admin/AdminPayments';
 import AdminSettings from './pages/admin/AdminSettings';
 import AdminSubscriptions from './pages/admin/AdminSubscriptions';
 import AdminLeaderboard from './pages/admin/AdminLeaderboard';
+import AdminWorkers from './pages/admin/AdminWorkers';
+import AdminJobDetail from './pages/admin/AdminJobDetail';
+import AdminActions from './pages/admin/AdminActions';
+import AdminDeletions from './pages/admin/AdminDeletions';
+import AdminSupport from './pages/admin/AdminSupport';
+import AdminActivity from './pages/admin/AdminActivity';
+import AdminTrainingProgress from './pages/admin/AdminTrainingProgress';
 import SkillCityLanding from './pages/SkillCityLanding';
 
 function PrivateRoute({ children }) {
@@ -126,6 +133,13 @@ export default function App() {
               <Route path="/admin/settings"      element={<AdminSettings />} />
               <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
               <Route path="/admin/leaderboard"   element={<AdminLeaderboard />} />
+              <Route path="/admin/jobs/:id"        element={<AdminJobDetail />} />
+              <Route path="/admin/workers"         element={<AdminWorkers />} />
+              <Route path="/admin/deletions"       element={<AdminDeletions />} />
+              <Route path="/admin/support"         element={<AdminSupport />} />
+              <Route path="/admin/activity"        element={<AdminActivity />} />
+              <Route path="/admin/actions"         element={<AdminActions />} />
+              <Route path="/admin/training-progress" element={<AdminTrainingProgress />} />
               <Route path="*" element={<Navigate to="/" replace />} />
 
             </Routes>
