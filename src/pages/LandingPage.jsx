@@ -5,8 +5,8 @@ import '../styles/theme.css';
 
 const SUPPORT = {
   email:    'support247instantworker@gmail.com',
-  phone:    '+91 93906 83569',
-  whatsapp: '919390683569',
+  phone:    '+91 80195 51211',
+  whatsapp: '918019551211',
   hours:    'Mon–Sat, 9 AM – 7 PM IST',
   city:     'Andhra Pradesh & Telangana',
 };

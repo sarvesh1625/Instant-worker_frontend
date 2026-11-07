@@ -19,7 +19,7 @@ const STEPS = [
 
 const SUPPORT = {
   email: 'support247instantworker@gmail.com',
-  whatsapp: '919390683569',
+  whatsapp: '918019551211',
 };
 
 export default function SkillCityLanding() {
