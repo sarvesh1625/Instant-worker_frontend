@@ -52,6 +52,8 @@ const NAV_GROUPS = [
   ] },
   { title: 'Safety & logs', items: [
     { icon: 'ti-flag',     label: 'Reports',    path: '/admin/reports' },
+    { icon: 'ti-star',     label: 'Reviews',       path: '/admin/reviews' },
+    { icon: 'ti-user-off', label: 'Cancellations', path: '/admin/cancellations' },
     { icon: 'ti-activity', label: 'Activity',   path: '/admin/activity' },
     { icon: 'ti-history',  label: 'Action log', path: '/admin/actions' },
   ] },

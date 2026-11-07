@@ -5,7 +5,7 @@ import { Title, Card, Chip, Empty, Pager, fmt } from './adminUi';
 
 const LABELS = {
   payment_confirm: 'Payment confirmed', job_close: 'Job closed', chat_read: 'Chat opened', chat_list: 'Chat list opened',
-  deletion_approved: 'Deletion approved', deletion_rejected: 'Deletion rejected', unlock_account: 'Login unlocked', clear_code_locks: 'Code locks cleared', user_view: 'Profile viewed',
+  deletion_approved: 'Deletion approved', deletion_rejected: 'Deletion rejected', unlock_account: 'Login unlocked', clear_code_locks: 'Code locks cleared', user_view: 'Profile viewed', review_edit: 'Review edited', cancel_waived: 'Late cancel waived',
 };
 
 function Content() {

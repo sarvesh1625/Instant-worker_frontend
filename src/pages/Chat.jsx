@@ -5,6 +5,10 @@ import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 import '../styles/theme.css';
 
+// A shared location travels as a normal text message:  "📍 https://maps.google.com/?q=LAT,LNG"
+// (same format as the mobile app, so a pin sent from either side shows up as a map card on both).
+const LOC_RE = /^📍 (https:\/\/maps\.google\.com\/\?q=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?))$/;
+
 export default function Chat() {
   const { userId }  = useParams();
   const { user }    = useAuth();
@@ -114,6 +118,32 @@ export default function Chat() {
     } finally {
       setSending(false);
     }
+  };
+
+  // One-time location pin (worker and poster can both send). Asks first, then uses the browser's location.
+  const shareLocation = () => {
+    if (sending) return;
+    if (!navigator.geolocation) { alert('Your browser cannot share location.'); return; }
+    if (!window.confirm(`Send your current location to ${otherUser?.name || 'this person'}?`)) return;
+    setSending(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const msgText = `📍 https://maps.google.com/?q=${pos.coords.latitude.toFixed(6)},${pos.coords.longitude.toFixed(6)}`;
+        try {
+          const { data } = await axios.post(`/api/chat/${userId}`, { text: msgText });
+          const real = data.message;
+          addedIds.current.add(real._id);
+          setMessages(prev => [...prev, real]);
+          socket?.emit('send_message', { senderId: user._id, receiverId: userId, message: real });
+        } catch (err) {
+          alert(err.response?.data?.message || 'Could not send location');
+        } finally {
+          setSending(false);
+        }
+      },
+      () => { setSending(false); alert('Could not get your location. Please allow location access in your browser and try again.'); },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+    );
   };
 
   const handleTyping = (e) => {
@@ -265,6 +295,18 @@ export default function Chat() {
                         <audio src={msg.voiceUrl} controls style={{ height: 30, width: 150 }}/>
                         {msg.voiceDuration > 0 && <span style={{ fontSize: 11, opacity: .7 }}>{formatDur(msg.voiceDuration)}</span>}
                       </div>
+                    ) : LOC_RE.test(msg.text || '') ? (
+                      <a href={msg.text.replace('📍 ', '')} target="_blank" rel="noopener noreferrer"
+                         style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none', color: 'inherit' }}>
+                        <span style={{ width: 46, height: 46, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26,
+                                       background: isMine ? 'rgba(255,255,255,.25)' : '#FEE2E2', color: isMine ? '#fff' : '#DC2626' }}>
+                          <i className="ti ti-map-pin-filled" aria-hidden="true"></i>
+                        </span>
+                        <span>
+                          <span style={{ display: 'block', fontSize: 14.5, fontWeight: 800 }}>Location</span>
+                          <span style={{ display: 'block', fontSize: 12.5, fontWeight: 800, marginTop: 2, textDecoration: 'underline' }}>Open map ›</span>
+                        </span>
+                      </a>
                     ) : (
                       <p style={{ margin: 0, fontSize: 14, lineHeight: 1.5 }}>{msg.text}</p>
                     )}
@@ -317,6 +359,18 @@ export default function Chat() {
             cursor: 'pointer', fontSize: 20,
           }}>
           <i className="ti ti-microphone" aria-hidden="true"></i>
+        </button>
+
+        <button
+          onClick={shareLocation} disabled={sending}
+          title="Share my location"
+          style={{
+            width: 44, height: 44, borderRadius: '50%', flexShrink: 0,
+            background: '#FEE2E2', border: '1.5px solid #FECACA', color: '#DC2626',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: sending ? 'not-allowed' : 'pointer', fontSize: 20,
+          }}>
+          <i className="ti ti-map-pin" aria-hidden="true"></i>
         </button>
 
         <input

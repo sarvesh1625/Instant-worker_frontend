@@ -53,6 +53,8 @@ import AdminDeletions from './pages/admin/AdminDeletions';
 import AdminSupport from './pages/admin/AdminSupport';
 import AdminActivity from './pages/admin/AdminActivity';
 import AdminTrainingProgress from './pages/admin/AdminTrainingProgress';
+import AdminReviews from './pages/admin/AdminReviews';
+import AdminCancellations from './pages/admin/AdminCancellations';
 import SkillCityLanding from './pages/SkillCityLanding';
 
 function PrivateRoute({ children }) {
@@ -140,6 +142,8 @@ export default function App() {
               <Route path="/admin/jobs/:id"        element={<AdminJobDetail />} />
               <Route path="/admin/workers"         element={<AdminWorkers />} />
               <Route path="/admin/deletions"       element={<AdminDeletions />} />
+              <Route path="/admin/reviews"         element={<AdminReviews />} />
+              <Route path="/admin/cancellations"   element={<AdminCancellations />} />
               <Route path="/admin/support"         element={<AdminSupport />} />
               <Route path="/admin/activity"        element={<AdminActivity />} />
               <Route path="/admin/actions"         element={<AdminActions />} />
